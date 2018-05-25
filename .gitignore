@@ -1,0 +1,50 @@
+# Created by .ignore support plugin (hsz.mobi)
+
+### C template
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+*.bin
+
+# Debug files
+*.dSYM/
+*.su
+
+#Binary Files
+*.bin
+*.sys
+
+#The images
+Image/*.img
+Image/*.qcow2
+Image/*.vmdk
+
+#vscode folder
+.vscode
