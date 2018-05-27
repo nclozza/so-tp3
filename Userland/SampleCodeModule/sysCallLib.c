@@ -238,3 +238,8 @@ int sysPipeRead(int id, void * buf, int bytes)
 {
   return sysCall(36,(uint64_t)id, (uint64_t)buf, (uint64_t)bytes, 0, 0);
 }
+
+void sysCreatePipeMutex()
+{
+  sysCall(37, 0, 0, 0, 0, 0);
+}

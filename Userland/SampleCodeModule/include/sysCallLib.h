@@ -43,5 +43,6 @@ int sysPipeOpen(char * name);
 int sysPipeClose(int id);
 int sysPipeWrite(int id, const void * buf, int bytes);
 int sysPipeRead(int id, void * buf, int bytes);
+void sysCreatePipeMutex();
 
 #endif

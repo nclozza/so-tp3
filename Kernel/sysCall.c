@@ -121,7 +121,10 @@ uint64_t sysCallHandler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, 
   case 35:
     return pipeWrite((int) rsi, (const void *) rdx, (int) rcx);    
   case 36:
-    return pipeRead((int) rsi, (void *) rdx, (int) rcx);    
+    return pipeRead((int) rsi, (void *) rdx, (int) rcx);  
+  case 37:
+    createPipeMutex();
+    return SUCCESS;   
   }
   return ERROR;
 }
