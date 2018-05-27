@@ -218,3 +218,23 @@ void sysWhileTrue()
 {
   sysCall(32, 0, 0, 0, 0, 0);
 }
+
+int sysPipeOpen(char * name)
+{
+  return sysCall(33,(uint64_t)name, 0, 0, 0, 0);
+}
+
+int sysPipeClose(int id)
+{
+  return sysCall(34,(uint64_t)id, 0, 0, 0, 0);
+}
+
+int sysPipeWrite(int id, const void * buf, int bytes)
+{
+  return sysCall(35,(uint64_t)id, (uint64_t)buf, (uint64_t)bytes, 0, 0);
+}
+
+int sysPipeRead(int id, void * buf, int bytes)
+{
+  return sysCall(36,(uint64_t)id, (uint64_t)buf, (uint64_t)bytes, 0, 0);
+}

@@ -39,5 +39,9 @@ int sysWriteMessage(uint64_t content, uint64_t id);
 void sysPrintPIDS();
 int sysDeleteThisProcess(int pid);
 void sysWhileTrue();
+int sysPipeOpen(char * name);
+int sysPipeClose(int id);
+int sysPipeWrite(int id, const void * buf, int bytes);
+int sysPipeRead(int id, void * buf, int bytes);
 
 #endif

@@ -14,12 +14,10 @@
 
 int pipeOpen(char * name);
 
-int pipeClose(int key);
+int pipeClose(int id);
 
-int pipeWrite(int key, const void * buf, int bytes);
+int pipeWrite(int id, const void * buf, int bytes);
 
-int pipeRead(int key, void * buf, int bytes);
-
-void initPipeMutex();
+int pipeRead(int id, void * buf, int bytes);
 
 #endif

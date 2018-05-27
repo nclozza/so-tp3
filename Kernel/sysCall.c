@@ -9,6 +9,7 @@
 #include "messageQueue.h"
 #include "scheduler.h"
 #include "pageallocator.h"
+#include "pipes.h"
 
 #define ERROR 1
 #define SUCCESS 0
@@ -113,6 +114,14 @@ uint64_t sysCallHandler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, 
   case 32:
     whileTrue();
     return SUCCESS;
+  case 33:
+    return pipeOpen((char*) rsi);
+  case 34:
+    return pipeClose((int) rsi);
+  case 35:
+    return pipeWrite((int) rsi, (const void *) rdx, (int) rcx);    
+  case 36:
+    return pipeRead((int) rsi, (void *) rdx, (int) rcx);    
   }
   return ERROR;
 }
