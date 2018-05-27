@@ -13,6 +13,8 @@
 
 #define MAX_DATA_PAGES 64
 #define MAX_PROCESS_NAME 64
+#define MAX_FDS 64
+#define CHECK_BIT(var,pos) ((var) & (1<<(pos)));
 
 typedef struct
 {
@@ -24,6 +26,7 @@ typedef struct
   void *dataPage[MAX_DATA_PAGES];
   uint64_t pid;
   uint64_t ppid;
+  uint64_t openFds;
 } process;
 
 typedef char status;
@@ -90,6 +93,9 @@ process *getProcessForeground();
 int deleteThisProcess(int pid);
 int deleteProcess(process *p);
 int isProcessDeleted(process *p);
+
+int setFileOpen(process * p, int fd);
+int fileIsOpen(process * p, int fd);
 
 void addDataPage(process *p, void *page);
 

@@ -1,6 +1,7 @@
 #ifndef PAGEALLOCATOR_H_
 #define PAGEALLOCATOR_H_
 
+#include <stdint.h>
 //*Address for size of ram*/
 #define SYSTEM_RAM_ADDRESS 0x5020
 
@@ -29,5 +30,6 @@ uint64_t getAvailableIndex();
 uint64_t getStackPage();
 void releaseStackPage(uint64_t stackpage);
 uint64_t peekAvailableStackPage();
+uint64_t storePage(uint64_t address);
 
 #endif

@@ -139,6 +139,15 @@ void releasePage(uint64_t page)
 	}
 }
 
+uint64_t storePage(uint64_t address) {
+
+	if (indexInStack > 0) {
+		pageStack[--indexInStack] = (address - DATA_ADDRESS) / PAGE_SIZE;
+		return 1;
+	}
+	return 0;
+}
+
 void restorePages()
 {
 	// indexInStack = 0;

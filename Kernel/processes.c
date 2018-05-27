@@ -52,6 +52,7 @@ process *createProcess(uint64_t newProcessRIP, uint64_t argc, uint64_t argv, con
     foreground = newProcess;
     newProcess->ppid = 0;
   }
+  newProcess->openFds = 0;  
 
   return newProcess;
 }
@@ -230,6 +231,17 @@ process *getProcessForeground()
 uint64_t getProcessesNumber()
 {
   return processesNumber;
+}
+
+int setFileOpen(process * p, int fd) {
+	if (fd >= MAX_FDS)
+		return 0;
+	p->openFds |= 1 << fd; // Settea bit en posicion fd en 1
+	return 1;
+}
+
+int fileIsOpen(process * p, int fd) {
+	return fd < MAX_FDS && CHECK_BIT(p->openFds, fd);
 }
 
 /* Llena el stack para que sea hookeado al cargar un nuevo proceso
