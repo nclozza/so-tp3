@@ -5,6 +5,7 @@
 #include "genericQueueTests.h"
 #include "messageQueueTests.h"
 #include "schedulerTests.h"
+#include "pipesTests.h"
 
 void runTests()
 {
@@ -14,6 +15,7 @@ void runTests()
 	runMutexTests();
     runGenericQueueTests();
     runMessageQueueTests();
-    runSchedulerTests();
+    //runSchedulerTests();
+    runPipesTests();    
     printString("Finished testing\n", 128, 128, 128);
 }

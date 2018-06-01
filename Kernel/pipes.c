@@ -69,6 +69,10 @@ void createPipeMutex() {
   pipeArrayLock = mutexInit("pipesQueueMutex");
 }
 
+void closePipeMutex(){
+  mutexClose(pipeArrayLock);
+}
+
 int pipeOpen(char * name) {
   int k;
 

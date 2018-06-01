@@ -11,6 +11,8 @@ void checkIsNotZero(int value);
 void checkIsNotMinusOne(int value);
 void checkIsZero(int value);
 void checkSizeOfSemaphoreList(int mysize, int size);
+void checkIsPositive(int i);
+void checkIsGreaterThanZero(int i);
 void ok();
 void fail();
 
