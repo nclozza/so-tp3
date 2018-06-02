@@ -3,123 +3,109 @@
 #include "testlib.h"
 #include "videoDriver.h"
 
-process* testProcess = NULL;
-char* processName;
-int newProcessRIP;
+threadADT testThread = NULL;
+char* threadName;
+int newThreadRIP;
 int argc;
 int argv;
 int testAux;
 int testPid;
 
-void givenAProcess();
-void whenProcessIsCreated();
-void thenProcessIsNotNull();
-void givenACreatedProcess();
-void whenProcessIsRemoved();
-void thenProcessIsNull();
-void whenProcessIsBlocked();
-void thenProcesStatusIsBlocked();
-void givenABlockedProcess();
-void whenAProcessIsUnblocked();
-void thenProcessStatusIsReady();
-void givenAProcessPid();
-void whenGetAProcessByPid();
+void givenAThread();
+void whenThreadIsCreated();
+void thenThreadIsNotNull();
+void givenACreatedThread();
+void whenThreadIsRemoved();
+void thenThreadIsNull();
+void whenThreadIsBlocked();
+void thenThreadStatusIsBlocked();
+void givenABlockedThread();
+void whenAThreadIsUnblocked();
+void thenThreadStatusIsReady();
+void givenAThreadPid();
+void whenGetAThreadByPid();
 void thenPidsAreEqual();
-void givenACreatedProcess();
-void whenAllProcessPagesAreNull();
-void thenProcessDataPageCountIsZero();
+void givenACreatedThread();
+void whenAllThreadPagesAreNull();
+void thenThreadDataPageCountIsZero();
 
-void testCreateProcess()
+void testCreateThread()
 {
-    givenAProcess();
-    whenProcessIsCreated();
-    thenProcessIsNotNull();
+    givenAThread();
+    whenThreadIsCreated();
+    thenThreadIsNotNull();
 }
 
 
-void testBlockProcess()
+void testBlockThread()
 {
-    givenACreatedProcess();
-    whenProcessIsBlocked();
-    thenProcesStatusIsBlocked();
+    givenACreatedThread();
+    whenThreadIsBlocked();
+    thenThreadStatusIsBlocked();
 }
 
-void testUnblockProcess()
+void testUnblockThread()
 {
-    givenABlockedProcess();
-    whenAProcessIsUnblocked();
-    thenProcessStatusIsReady();
-}
-
-void testGetProcessByPid()
-{
-    givenAProcessPid();
-    whenGetAProcessByPid();
-    thenPidsAreEqual();    
-}
-
-void testSetNullProcessPages()
-{
-    givenACreatedProcess();
-    whenAllProcessPagesAreNull();
-    thenProcessDataPageCountIsZero();
-}
-
-void testRemoveProcess()
-{
-    givenACreatedProcess();
-    whenProcessIsRemoved();
-    thenProcessIsNull();
+    givenABlockedThread();
+    whenAThreadIsUnblocked();
+    thenThreadStatusIsReady();
 }
 
 
-void givenAProcess()
+void testRemoveThread()
 {
-    processName = "processTesting";
-    newProcessRIP = 10;
+    givenACreatedThread();
+    whenThreadIsRemoved();
+    thenThreadIsNull();
+}
+
+
+void givenAThread()
+{
+    threadName = "threadTesting";
+    newThreadRIP = 10;
     argc = 0;
     argv = 0;
 }
 
-void whenProcessIsCreated()
-{
-    testProcess = createProcess((uint64_t) newProcessRIP, (uint64_t) argc, (uint64_t) argv, processName);
+void whenThreadIsCreated()
+{    
+    testThread = getThread(createProcess((uint64_t) newThreadRIP, 1,(uint64_t) argc, (uint64_t) argv, threadName),0);
 }
 
-void thenProcessIsNotNull()
+void thenThreadIsNotNull()
 {
-    checkIsNotNull((void*)testProcess);
+    checkIsNotNull((void*)testThread);
 }
 
-void givenACreatedProcess()
+void givenACreatedThread()
 {
-    if (testProcess == NULL)
+    if (testThread == NULL)
     {
-        givenAProcess();
-        whenProcessIsCreated();
+        givenAThread();
+        whenThreadIsCreated();
     }        
 }
 
-void whenProcessIsRemoved()
+void whenThreadIsRemoved()
 {
-    deleteProcess(testProcess);
-    removeProcess(testProcess);
-    testAux = isProcessDeleted(testProcess);
+    removeThread(testThread);
+    testAux = isThreadDeleted(testThread);
 }
 
-void thenProcessIsNull()
+void thenThreadIsNull()
 {
     checkIsZero(testAux);
 }
 
-void whenProcessIsBlocked()
+void whenThreadIsBlocked()
 {
-    blockProcess(testProcess);
+    blockThread(testThread);
 }
 
-void thenProcesStatusIsBlocked()
-{
-    if (testProcess->status == BLOCKED)
+void thenThreadStatusIsBlocked()
+{    
+    if (isThreadBlocked(testThread))
     {
         testAux = 0;
         checkIsZero(testAux);
@@ -131,24 +117,24 @@ void thenProcesStatusIsBlocked()
     }
 }
 
-void givenABlockedProcess()
+void givenABlockedThread()
 {
-    if (testProcess->status != BLOCKED)
+    if (!isThreadBlocked(testThread))
     {
-        givenACreatedProcess();
-        whenProcessIsBlocked();
+        givenACreatedThread();
+        whenThreadIsBlocked();
     }
 }
 
 
-void whenAProcessIsUnblocked()
+void whenAThreadIsUnblocked()
 {
-    unblockProcess(testProcess);
+    unblockThread(testThread);
 }
 
-void thenProcessStatusIsReady()
+void thenThreadStatusIsReady()
 {
-    if (testProcess->status == READY)
+    if (isThreadReady(testThread))
     {
         testAux = 0;
         checkIsZero(testAux);
@@ -160,9 +146,9 @@ void thenProcessStatusIsReady()
     }
 }
 
-void whenProcessIsRunning()
+void whenThreadIsRunning()
 {
-    testPid =(int) runProcess(testProcess);
+    testPid =(int) runThread(testThread);
 }
 
 void thenPidIsNotZero()
@@ -170,51 +156,24 @@ void thenPidIsNotZero()
     checkIsNotZero(testPid);
 }
 
-void givenAProcessPid()
-{
-    givenACreatedProcess();
-    testPid = testProcess->pid;
-}
-
-void whenGetAProcessByPid()
-{
-    testProcess = getProcessByPid(testPid);
-}
-
 void thenPidsAreEqual()
 {
-    checkAreEqual(testPid, testProcess->pid);
-}
-
-void whenAllProcessPagesAreNull()
-{
-    setNullAllProcessPages(testProcess);
-}
-
-void thenProcessDataPageCountIsZero()
-{
-    checkIsZero(testProcess->dataPageCount);
+    checkAreEqual(testPid, getThreadPid(testThread));
 }
 
 
 void runSchedulerTests()
 {
-    printString("Testing process is created...\n", 128, 128, 128);
-    testCreateProcess();
+    printString("Testing thread is created...\n", 128, 128, 128);
+    testCreateThread();
 
-    printString("Testing process is blocked...\n", 128, 128, 128);    
-    testBlockProcess();
+    printString("Testing thread is blocked...\n", 128, 128, 128);    
+    testBlockThread();
     
-    printString("Testing process is unblocked...\n", 128, 128, 128);    
-    testUnblockProcess();
+    printString("Testing thread is unblocked...\n", 128, 128, 128);    
+    testUnblockThread();
 
-    printString("Testing get a process by PID...\n", 128, 128, 128);    
-    testGetProcessByPid();
-
-    printString("Testing set null all process pages...\n", 128, 128, 128);
-    testSetNullProcessPages();
-
-    printString("Testing process is removed...\n", 128, 128, 128);
-    testRemoveProcess();
+    printString("Testing Thread is removed...\n", 128, 128, 128);
+    testRemoveThread();
 
 }

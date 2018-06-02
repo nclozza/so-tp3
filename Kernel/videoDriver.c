@@ -1,3 +1,4 @@
+#include "scheduler.h"
 #include <stdint.h>
 #include "lib.h"
 #include "videoDriver.h"
@@ -69,7 +70,7 @@ void paintPixel(int x, int y, char B, char G, char R)
 void writeChar(char c, int B, int G, int R)
 {
 	
-	if (isProcessRunningInForeground() == 0)
+	if (getCurrentThread() != NULL && !isThreadForeground(getCurrentThread()))
 	{
 		return;
 	}

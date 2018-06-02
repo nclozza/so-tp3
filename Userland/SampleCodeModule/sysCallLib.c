@@ -172,15 +172,15 @@ int sysCloseMessage(uint64_t arg1, uint64_t id)
   return (int)sysCall(22, arg1, id, 0, 0, 0);
 }
 
-int sysExec(void *function, int argc, char **argv, char *name)
+int sysExec(void *function,int foreground, int argc, char **argv, char *name)
 {
-  return (uint64_t)sysCall(23, (uint64_t)function, argc, (uint64_t)argv, (uint64_t)name, 0);
+  return (uint64_t)sysCall(23, (uint64_t)function, foreground, argc, (uint64_t)argv, (uint64_t)name);
 }
 void sysSetForeground(int pid)
 {
   sysCall(24, (uint64_t)pid, 0, 0, 0, 0);
 }
-void sysEndProcess()
+void sysEndThread()
 {
   sysCall(25, 0, 0, 0, 0, 0);
 }
@@ -204,12 +204,12 @@ uint64_t sysGetPage()
   return sysCall(29, 0, 0, 0, 0, 0);
 }
 
-void sysPrintBlockedProcesses()
+void sysPrintBlockedThreads()
 {
   sysCall(30, 0, 0, 0, 0, 0);
 }
 
-int sysDeleteThisProcess(int pid)
+int sysDeleteThisThread(int pid)
 {
   return sysCall(31, (uint64_t)pid, 0, 0, 0, 0);
 }
@@ -217,4 +217,14 @@ int sysDeleteThisProcess(int pid)
 void sysWhileTrue()
 {
   sysCall(32, 0, 0, 0, 0, 0);
+}
+
+void sysWait(int pid)
+{
+  sysCall(50,(uint64_t)pid,0,0,0,0);
+}
+
+void sysCreateThread(int foreground, void * function, int argc, char** argv)
+{
+  sysCall(51,foreground, (uint64_t)function, argc, (uint64_t)argv,0);
 }
