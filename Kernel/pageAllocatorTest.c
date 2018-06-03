@@ -113,7 +113,6 @@ void thenIndexInStackDecreases()
 
 void runPageAllocatorTests()
 {
-	initializePageAllocator();
 	printString("Testing allocating page when stack is empty...\n", 128, 128, 128);
 	testAllocatePageWhenStackEmpty();
 	printString("Testing release of page...\n", 128, 128, 128);

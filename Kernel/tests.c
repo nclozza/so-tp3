@@ -9,11 +9,11 @@
 void runTests()
 {
     printString("Running tests...\n", 128, 128, 128);
-    runPageAllocatorTests();
+     runPageAllocatorTests();
 	runSemaphoreTests();
-	runMutexTests();
-    runGenericQueueTests();
-    runMessageQueueTests();
-    runSchedulerTests();
+	 runMutexTests();
+     runGenericQueueTests();
+     runMessageQueueTests();
+     runSchedulerTests();
     printString("Finished testing\n", 128, 128, 128);
 }

@@ -15,7 +15,7 @@ typedef struct sem_t
 	char *name;
 	int value;
 	int id;
-	process* blockedProcesses[MAX_PROCESSES];
+	threadADT blockedThreads[MAX_THREADS];
 } sem_t;
 
 int semOpen(char *name)
@@ -33,9 +33,9 @@ int semOpen(char *name)
 	strcpyKernel(newSemaphore->name, name);
 	newSemaphore->value = 1;
 	newSemaphore->id = id;
-	for(int i = 0; i < MAX_PROCESSES; i++)
+	for(int i = 0; i < MAX_THREADS; i++)
 	{
-		newSemaphore->blockedProcesses[i] = NULL;
+		newSemaphore->blockedThreads[i] = NULL;
 	}
 	id++;
 	numberOfSemaphores++;
@@ -60,8 +60,8 @@ int semPost(int id)
 	
 	if(sem->value<=0)
 	{
-		for(int i = 0; i < MAX_PROCESSES; i++){		
-			unblockProcess(sem->blockedProcesses[i]);
+		for(int i = 0; i < MAX_THREADS; i++){		
+			unblockThread(sem->blockedThreads[i]);
 		}
 	}
 	sem->value++;
@@ -89,10 +89,10 @@ int semWait(int id)
 		
 		while(sem->value == 0)
 		{
-			process* p = getCurrentProcess();		
-			blockProcess(p);
-			sem->blockedProcesses[getProcessPid(p)]= p;		
-			yieldProcess();
+			threadADT t = getCurrentThread();		
+			blockThread(t);
+			sem->blockedThreads[getThreadPid(t)]= t;		
+			yieldThread();
 		}
 		sem->value = 0;
 	}	

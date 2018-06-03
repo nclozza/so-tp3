@@ -37,7 +37,7 @@ void printName(int argc, char *argv[])
 		Use command help for guidelines\n",
 									 CB, CG, CR);
 	}
-	sysEndProcess();
+	sysEndThread();
 }
 
 void createMutex()
@@ -52,7 +52,7 @@ void help(int argc, char *argv[])
 {
 
 	if (argc > 2)
-		sysEndProcess();
+		sysEndThread();
 
 	if (argc == 2)
 	{
@@ -120,7 +120,7 @@ void help(int argc, char *argv[])
 		sysPrintString(helpIns, B, G, R);
 	}
 
-	sysEndProcess();
+	sysEndThread();
 }
 void echo(int argc, char *argv[])
 {
@@ -132,7 +132,7 @@ void echo(int argc, char *argv[])
 
 	sysPrintString("\n", B, G, R);
 
-	sysEndProcess();
+	sysEndThread();
 }
 
 void clear(int argc, char *argv[])
@@ -141,18 +141,18 @@ void clear(int argc, char *argv[])
 	{
 		sysPrintString("No extra parameters for clear\n", CB, CG, CR);
 
-		sysEndProcess();
+		sysEndThread();
 	}
 
 	sysClear();
-	sysEndProcess();
+	sysEndThread();
 }
 
 void calculate(int argc, char *argv[])
 {
 	/*calculate operation n1 n2*/
 	if (argc != 4)
-		sysEndProcess();
+		sysEndThread();
 	char *input01 = argv[1];
 	char *input02 = argv[2];
 	char *input03 = argv[3];
@@ -170,7 +170,7 @@ void calculate(int argc, char *argv[])
 		sysPrintInt(ans, 255, 255, 0);
 		sysPrintString("\n", 255, 255, 0);
 	}
-	sysEndProcess();
+	sysEndThread();
 }
 
 void opcode(int argc, char *argv[])
@@ -178,10 +178,10 @@ void opcode(int argc, char *argv[])
 	if (argc != 1)
 	{
 		sysPrintString("No extra parameters for opcode\n", CB, CG, CR);
-		sysEndProcess();
+		sysEndThread();
 	}
 	opcodeGenerator();
-	sysEndProcess();
+	sysEndThread();
 }
 
 void prodcons(int argc, char *argv[])
@@ -189,11 +189,11 @@ void prodcons(int argc, char *argv[])
 	if (argc != 1)
 	{
 		sysPrintString("No extra parameters for prodcons\n", CB, CG, CR);
-		sysEndProcess();
+		sysEndThread();
 	}
 
 	runProdCons();
-	sysEndProcess();
+	sysEndThread();
 }
 
 void ps(int argc, char *argv[])
@@ -201,10 +201,10 @@ void ps(int argc, char *argv[])
 	if (argc != 1)
 	{
 		sysPrintString("No extra parameters for ps\n", CB, CG, CR);
-		sysEndProcess();
+		sysEndThread();
 	}
 	sysPrintPIDS();
-	sysEndProcess();
+	sysEndThread();
 }
 
 void plot(int argc, char *argv[])
@@ -216,7 +216,7 @@ void plot(int argc, char *argv[])
 		Use command help for guidelines\n",
 									 CB, CG, CR);
 
-		sysEndProcess();
+		sysEndThread();
 	}
 
 	for (int i = 1; i <= GRAPH_PARAMETERS; i++)
@@ -227,13 +227,13 @@ void plot(int argc, char *argv[])
 			Use command help for guidelines\n",
 										 CB, CG, CR);
 
-			sysEndProcess();
+			sysEndThread();
 		}
 	}
 
 	graphMain(toFloat(argv[1]), toFloat(argv[2]), toFloat(argv[3]));
 
-	sysEndProcess();
+	sysEndThread();
 }
 
 void displayTime(int argc, char *argv[])
@@ -241,7 +241,7 @@ void displayTime(int argc, char *argv[])
 	if (argc != 1)
 	{
 		sysPrintString("Wrong parameters: displayTime\n", CB, CG, CR);
-		sysEndProcess();
+		sysEndThread();
 	}
 	int timeBuff[6];
 
@@ -268,7 +268,7 @@ void displayTime(int argc, char *argv[])
 	sysPrintInt(timeBuff[5], B, G, R);
 	sysPrintString("\n", B, G, R);
 
-	sysEndProcess();
+	sysEndThread();
 }
 
 void setTimeZone(int argc, char *argv[])
@@ -277,17 +277,17 @@ void setTimeZone(int argc, char *argv[])
 	if (argc != 2)
 	{
 		sysPrintString("Wrong parameters: setTimeZone timezone\n", CB, CG, CR);
-		sysEndProcess();
+		sysEndThread();
 	}
 	else
 	{
 		if (input1 > 12 || input1 < -11)
 		{
 			sysPrintString("Timezone values must be between -11 and +12\n", CB, CG, CR);
-			sysEndProcess();
+			sysEndThread();
 		}
 		timeZone = input1;
-		sysEndProcess();
+		sysEndThread();
 	}
 }
 
@@ -301,28 +301,28 @@ void setFontColor(int argc, char *argv[])
 	if (argc != 2)
 	{
 		sysPrintString("Wrong parameters for setFontColor\n", CB, CG, CR);
-		sysEndProcess();
+		sysEndThread();
 	}
 	if (strcmp(argv[2], "red") == 0)
 	{
-		sysEndProcess();
+		sysEndThread();
 	}
 	else if (strcmp(argv[2], "green") == 0)
 	{
-		sysEndProcess();
+		sysEndThread();
 	}
 	else if (strcmp(argv[2], "blue") == 0)
 	{
-		sysEndProcess();
+		sysEndThread();
 	}
 	else if (strcmp(argv[2], "default") == 0)
 	{
-		sysEndProcess();
+		sysEndThread();
 	}
 	else
 	{
 		sysPrintString("Wrong parameters for setFontColor\n", CB, CG, CR);
-		sysEndProcess();
+		sysEndThread();
 	}
 
 	sysPrintString("Set font color\n", B, G, R);
@@ -331,7 +331,7 @@ void setFontColor(int argc, char *argv[])
 void whileTrue()
 {
 	sysWhileTrue();
-	sysEndProcess();
+	sysEndThread();
 }
 
 void kill(int argc, char *argv[])
@@ -339,10 +339,10 @@ void kill(int argc, char *argv[])
 	if (argc != 2)
 	{
 		sysPrintString("Wrong parameters for kill\n", CB, CG, CR);
-		sysEndProcess();
+		sysEndThread();
 	}
 
 	int pid = toInt(argv[1]);
-	sysDeleteThisProcess(pid);
-	sysEndProcess();
+	sysDeleteThisThread(pid);
+	sysEndThread();
 }

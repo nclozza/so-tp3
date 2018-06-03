@@ -81,7 +81,7 @@ void removeLastProducer(int *prodc, int *producers)
   else
   {
     sysMutexDown(bufferMutex);
-    sysDeleteThisProcess(producers[--*prodc]);
+    sysDeleteThisThread(producers[--*prodc]);
     sysMutexUp(bufferMutex);
     return;
   }
@@ -95,7 +95,7 @@ void removeLastConsumer(int *consc, int *consumers)
   }
   else
   {
-    sysDeleteThisProcess(consumers[--*consc]);
+    sysDeleteThisThread(consumers[--*consc]);
   }
 }
 

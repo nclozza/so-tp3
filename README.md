@@ -1,9 +1,9 @@
-# TP3 - Sistemas Operativos - 2018
+# TP2 - Sistemas Operativos - 2018
 
 ## To run the project:
 
 ```
-> git clone https://github.com/nclozza/so-tp3.git
+> git clone https://github.com/nclozza/so-tp2.git
 > cd so-tp2/Toolchain
 > make
 > cd ..

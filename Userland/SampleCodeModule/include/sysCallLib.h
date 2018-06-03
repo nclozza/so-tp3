@@ -15,8 +15,8 @@ void sysWriteChar(char ch, unsigned char color_blue, unsigned char color_green, 
 void sysGetChar(char *ch);
 uint64_t sysMalloc(uint64_t bytes);
 void sysFree(uint64_t address);
-int sysExec(void *function, int argc, char **argv, char *name);
-void sysEndProcess();
+int sysExec(void *function, int foreground, int argc, char **argv, char *name);
+void sysEndThread();
 void sysSetForeground(int pid);
 int sysPpid();
 void sysExitShell();
@@ -37,7 +37,9 @@ int sysOpenMessage(uint64_t name, uint64_t arg2);
 int sysReadMessage(uint64_t buffer, uint64_t id);
 int sysWriteMessage(uint64_t content, uint64_t id);
 void sysPrintPIDS();
-int sysDeleteThisProcess(int pid);
+int sysDeleteThisThread(int pid);
 void sysWhileTrue();
+void sysWait(int pid);
+void sysCreateThread(int foreground, void * function, int argc, char** argv);
 
 #endif
