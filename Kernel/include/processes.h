@@ -39,9 +39,6 @@ void setNullAllThreads(process *process);
 
 int removeProcess(process *p);
 
-int setFileOpen(process * p, int fd);
-int fileIsOpen(process * p, int fd);
-
 void addDataPage(process *p, void *page);
 
 void exitShell();

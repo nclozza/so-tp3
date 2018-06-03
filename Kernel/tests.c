@@ -15,7 +15,7 @@ void runTests()
 	runMutexTests();
     runGenericQueueTests();
     runMessageQueueTests();
-    //runSchedulerTests();
+    runSchedulerTests();
     runPipesTests();    
     printString("Finished testing\n", 128, 128, 128);
 }

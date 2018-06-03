@@ -164,17 +164,6 @@ uint64_t getProcessesNumber()
   return processesNumber;
 }
 
-int setFileOpen(process * p, int fd) {
-	if (fd >= MAX_FDS)
-		return 0;
-	p->openFds |= 1 << fd; // Settea bit en posicion fd en 1
-	return 1;
-}
-
-int fileIsOpen(process * p, int fd) {
-	return fd < MAX_FDS && CHECK_BIT(p->openFds, fd);
-}
-
 void printPIDS()
 {
   int i;

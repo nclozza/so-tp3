@@ -13,6 +13,7 @@ typedef struct thread_t
 	uint64_t rsp;
   uint64_t stackPage;
   struct thread_t* waiting;
+  uint64_t openFds;
 } thread_t;
 
 threadADT createThread(int pid,int foreground, uint64_t rsp, int argc, char *argv[], int tid){ 	
@@ -160,4 +161,15 @@ void putThreadOnWait(threadADT t1, threadADT t2)
     return;
   blockThread(t1);
   t2->waiting = t1;
+}
+
+int setFileOpen(threadADT t, int fd) {
+	if (fd >= MAX_FDS)
+		return 0;
+	t->openFds |= 1 << fd; // Settea bit en posicion fd en 1
+	return 1;
+}
+
+int fileIsOpen(threadADT t, int fd) {
+	return fd < MAX_FDS && CHECK_BIT(t->openFds, fd);
 }

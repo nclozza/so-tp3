@@ -9,6 +9,18 @@
 #include "videoDriver.h"
 #include "time.h"
 #include "defs.h"
+#include "thread.h"
+
+typedef struct thread_t
+{
+	int tid;
+	int pid;	
+	int status;
+	int foreground;
+	uint64_t rsp;
+  uint64_t stackPage;
+  struct thread_t* waiting;
+} thread_t;
 
 typedef struct mutex_t
 {
@@ -41,10 +53,11 @@ typedef struct
   int bytesRead;
   void * buffer;
   pipe * f;
-  process * readerP;
+  thread_t * readerP;
 } readRequest;
 
-typedef struct fifo_info {
+typedef struct
+{
 	char name[PIPE_NAME_LEN];
 	int fds;
 } pipeInfo;
@@ -80,7 +93,7 @@ int pipeOpen(char * name) {
 
   for (k = 0; k < MAX_PIPES && openPipes[k].state == OPEN; k++) {
     if (strcmpKernel(name, openPipes[k].name) == 0) {
-      setFileOpen(getCurrentProcess(), k);
+      setFileOpen(getCurrentThread(), k);
       mutexUnlock(pipeArrayLock);
       return k;
     }
@@ -95,7 +108,7 @@ int pipeOpen(char * name) {
 
   mutexUnlock(pipeArrayLock);
 
-  setFileOpen(getCurrentProcess(), k);
+  setFileOpen(getCurrentThread(), k);
 
   return k;
 }
@@ -122,7 +135,7 @@ static circularBuffer createCircularBuffer() {
 
 static int isOpen(int id) {
   return id < MAX_PIPES && openPipes[id].state == OPEN && \
-    fileIsOpen(getCurrentProcess(), id);
+    fileIsOpen(getCurrentThread(), id);
 }
 
 int pipeWrite(int id, const void * buf, int bytes) {
@@ -164,7 +177,7 @@ static void sendToReaders(queueADT readQueue) {
   while(!queueIsEmpty(readQueue) && tryRead(peek(readQueue))) {
     // manda a los lectores hasta que uno no pueda leer mas
     readRequest * r = dequeue(readQueue);
-    unblockProcess(r->readerP);// leyo, entonces lo saca de los que estan esperando leer
+    unblockThread(r->readerP);// leyo, entonces lo saca de los que estan esperando leer
   }
 }
 
@@ -173,7 +186,7 @@ static readRequest * createReadRequest(int pipeId, void * buf, int bytes) {
   r->bytes = bytes;
   r->buffer = buf;
   r->f = &openPipes[pipeId];
-  r->readerP = getCurrentProcess();
+  r->readerP = getCurrentThread();
   return r;
 }
 
@@ -194,8 +207,8 @@ int pipeRead(int id, void * buf, int bytes) {
     if (!canRead) {
       enqueue(f->readQueue, r);
       mutexUnlock(f->pipeMutex);
-      blockProcess(r->readerP);
-      yieldProcess(); // esta bloqueado
+      blockThread(r->readerP);
+      yieldThread(); // esta bloqueado
     }
     else {
       mutexUnlock(f->pipeMutex); // TODO: OJO que el tryRead bloquea, puede que nunca se llegue a este unlock
@@ -238,7 +251,7 @@ static void releaseReaders(queueADT q) {
   readRequest * req;
   while (!queueIsEmpty(q)) {
     req = dequeue(q);
-    unblockProcess(req->readerP);
+    unblockThread(req->readerP);
   }
 }
 

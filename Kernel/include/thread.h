@@ -70,4 +70,7 @@ int isThreadDeleted(threadADT t);
 
 void putThreadOnWait(threadADT t1, threadADT t2);
 
+int setFileOpen(threadADT t, int fd);
+int fileIsOpen(threadADT t, int fd);
+
 #endif
