@@ -10,7 +10,7 @@
 void runTests()
 {
     printString("Running tests...\n", 128, 128, 128);
-    runPageAllocatorTests();
+     runPageAllocatorTests();
 	runSemaphoreTests();
 	runMutexTests();
     runGenericQueueTests();

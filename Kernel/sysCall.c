@@ -24,12 +24,12 @@ uint64_t mallocMemory(uint64_t size)
 
 void freeMemory(uint64_t page)
 {
-  //remove process from scheduler
   free((void *)page);
 }
 void setForeground(int pid)
 {
-  setProcessForeground(pid);
+  process* p = getCurrentProcess();
+  setThreadForeground(getThread(p,0));
 }
 uint64_t sysCallHandler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
 {
@@ -89,12 +89,12 @@ uint64_t sysCallHandler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, 
   case 22:
     return closeMessage((char *)rsi, (int)rdx);
   case 23:
-    return runProcess(createProcess(rsi, rdx, rcx, (char *)r8));
+    return runThread(getThread(createProcess(rsi,rdx, rcx, r8,(char *)r9),0));
   case 24:
     setForeground((int)rsi);
     return SUCCESS;
   case 25:
-    killProcess();
+    killThread();
     return SUCCESS;
   case 26:
     return getProcessPpid(getCurrentProcess());
@@ -107,7 +107,7 @@ uint64_t sysCallHandler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, 
   case 29:
     return getAvailablePage();
   case 30:
-    printBlockedProcessesList();
+    printBlockedThreadsList();
     return SUCCESS;
   case 31:
     return deleteThisProcess((int) rsi);
@@ -125,6 +125,12 @@ uint64_t sysCallHandler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, 
   case 37:
     createPipeMutex();
     return SUCCESS;   
+  case 50:
+    putThreadOnWait(getCurrentThread(), getThread(getProcessByPid((int)rsi), 0));
+    yieldThread();
+    return SUCCESS;
+  case 51:
+    return runThread(createThread(getProcessPid(getCurrentProcess()), rsi,rdx,rcx,(char**)r8, getProcessThreadCount(getProcessPid(getCurrentProcess()))));
   }
   return ERROR;
 }

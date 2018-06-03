@@ -2,6 +2,7 @@
 #define SCHEDULER_H
 
 #include <stdint.h>
+#include "thread.h" 
 #include "processes.h"
 #include "genericQueue.h"
 #include "defs.h"
@@ -12,32 +13,32 @@
 typedef struct node
 {
 	int quantum;
-	process *p;
+	threadADT t;
 	struct node *next;
 } nodeList;
 
-typedef struct blockedProcess
+typedef struct blockedThread
 {
-	process* process;
+	threadADT t;
 	int semId;
 	int isMutex;
-	struct blockedProcess *next;
-} blockedProcess;
+	struct blockedThread *next;
+} blockedThread;
 
-typedef struct blockedProcess* blockedProcessADT;
-void printBlockedProcessesList();
+typedef struct blockedThread* blockedThreadADT;
+void printBlockedThreadsList();
 
-uint64_t nextProcess(uint64_t current_rsp);
+uint64_t nextThread(uint64_t current_rsp);
 
-uint64_t runProcess(process * new_process);
-void killProcess();
-void yieldProcess();
+uint64_t runThread(threadADT new_thread);
+void killThread();
+void yieldThread();
 
-void _changeProcess(uint64_t rsp);
-void _yieldProcess();
+void _changeThread(uint64_t rsp);
+void _yieldThread();
 
-process * getCurrentProcess();
-
+threadADT getCurrentThread();
+process* getCurrentProcess();
 void increaseQuantum();
 void decreaseQuantum();
 

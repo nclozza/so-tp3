@@ -6,7 +6,6 @@
 #include "videoDriver.h"
 #include "idtLoader.h"
 #include "stdio.h"
-#include "tests.h"
 #include "scheduler.h"
 #include "pageallocator.h"
 #include "init.h"
@@ -56,10 +55,9 @@ int main()
 	load_idt();
 	paintBackGround();
 	initializePageAllocator();
+	
 
-	runTests();
-
-	runProcess(createProcess((uint64_t)init, 0,0, "init"));
+	runThread(getThread(createProcess((uint64_t)init,1, 0,0, "init"),0));
 
 	while (1)
 	{

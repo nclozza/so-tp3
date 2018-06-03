@@ -13,8 +13,8 @@ GLOBAL _irq03Handler
 GLOBAL _irq04Handler
 GLOBAL _irq05Handler
 
-GLOBAL _changeProcess
-GLOBAL _yieldProcess	
+GLOBAL _changeThread
+GLOBAL _yieldThread
 GLOBAL _yield_interrupt
 GLOBAL _divideByZeroHandler
 GLOBAL _overflowHandler
@@ -22,7 +22,7 @@ GLOBAL _opcodeHandler
 GLOBAL _generalProtection
 
 EXTERN timerHandler
-EXTERN nextProcess
+EXTERN nextThread
 EXTERN irqDispatcher
 EXTERN exceptionDispatcher
 EXTERN printInt
@@ -99,7 +99,7 @@ _irq00Handler:
 	;call timerHandler
 
 	mov rdi, rsp
-	call nextProcess
+	call nextThread
 
 	mov rsp, rax
 
@@ -147,12 +147,12 @@ _opcodeHandler:
 _generalProtection:
 	exceptionHandler 13
 
-_changeProcess:
+_changeThread:
 	mov rsp, rdi
 	popState
 	iretq
 
-_yieldProcess:	
+_yieldThread:	
 	int 70h       		
 	ret	
 	
@@ -160,7 +160,7 @@ _yield_interrupt:
 	pushState	
 	
 	mov rdi, rsp	
-	call nextProcess	
+	call nextThread
 	
 	mov rsp, rax	
 	popState	
