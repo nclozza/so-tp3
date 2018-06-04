@@ -45,5 +45,7 @@ void decreaseQuantum();
 void block(queueADT queue);
 void unblock(queueADT queue);
 
+//void waitProcess(int pid);
+
 
 #endif

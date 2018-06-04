@@ -19,6 +19,7 @@ typedef struct
   void *dataPage[MAX_DATA_PAGES];
   uint64_t pid;
   uint64_t ppid;
+  //uint64_t cpid;
   threadADT threads[MAX_THREADS];
   uint64_t threadCount;
 } process;
@@ -57,5 +58,9 @@ void removeThreadFromProcess(process* p, int tid);
 threadADT getThread(process* p, int tid);
 
 int deleteThisProcess(int pid);
+
+/*void setProcessCpid(process *p, int pid);
+
+uint64_t getProcessPid(process *p);*/
 
 #endif

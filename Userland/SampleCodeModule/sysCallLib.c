@@ -172,7 +172,7 @@ int sysCloseMessage(uint64_t arg1, uint64_t id)
   return (int)sysCall(22, arg1, id, 0, 0, 0);
 }
 
-int sysExec(void *function,int foreground, int argc, char **argv, char *name)
+int sysExec(void *function, int foreground, int argc, char **argv, char *name)
 {
   return (uint64_t)sysCall(23, (uint64_t)function, foreground, argc, (uint64_t)argv, (uint64_t)name);
 }
@@ -218,6 +218,11 @@ void sysWhileTrue()
 {
   sysCall(32, 0, 0, 0, 0, 0);
 }
+
+/*void sysWaitProcess(int pid)
+{
+  sysCall(38, (uint64_t)pid, 0, 0, 0, 0);
+}*/
 
 void sysWait(int pid)
 {

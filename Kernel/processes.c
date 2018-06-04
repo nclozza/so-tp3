@@ -50,6 +50,7 @@ process *createProcess(uint64_t newProcessRIP, int foreground, uint64_t argc, ui
   {    
     newProcess->ppid = 0;
   }
+  //newProcess->cpid = -1;
 
   return newProcess;
 }
@@ -242,7 +243,14 @@ int deleteThisProcess(int pid)
 {
   if (pid != 0 && pid != 1)
   {
-    return removeProcess(getProcessByPid(pid));
+    process *p = getProcessByPid(pid);
+
+    for(int i = 0, x = 0; i < MAX_THREADS && x < p->threadCount; i++)
+    {
+      deleteThread(p->threads[i]);
+    }
+
+    return removeProcess(p);
   }
   return 0;
 }
@@ -252,3 +260,16 @@ uint64_t getProcessThreadCount(int pid)
 {
   return processesTable[pid]->threadCount;
 }
+
+/*void setProcessCpid(process *p, int pid)
+{
+  if(p != NULL)
+    p->cpid = pid;
+}
+
+uint64_t getProcessCpid(process *p)
+{
+  if(p != NULL)
+    return p->cpid;
+  return -1;
+}*/

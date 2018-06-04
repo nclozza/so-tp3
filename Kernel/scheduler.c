@@ -28,7 +28,10 @@ process* getCurrentProcess()
 }
 
 uint64_t nextThread(uint64_t current_rsp)
-{
+{	
+	threadADT waitingThread;
+	uint64_t parentPid;
+
 	if (current == NULL)
 	{
 		return current_rsp;
@@ -45,6 +48,13 @@ uint64_t nextThread(uint64_t current_rsp)
 
 	prev = current;
 	current = current->next;
+
+	waitingThread = getThreadWaiting(getCurrentThread());
+	parentPid = getProcessPpid(getCurrentProcess());
+	if(parentPid == 0 && (waitingThread == NULL || isThreadDeleted(waitingThread)))
+	{
+		unblockThread(getCurrentThread());
+	}
 
 	setNextCurrent();
 
@@ -166,3 +176,10 @@ void unblock(queueADT queue)
 		addThread(current->t);
 	}
 }
+
+/*void waitProcess(int pid)
+{
+	process *currentProcess = current->p;
+	setProcessCpid(currentProcess, pid);
+	blockProcess(currentProcess);
+}*/
