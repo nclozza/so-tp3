@@ -21,14 +21,6 @@
 #define MAX_PROCESSES 128
 
 void initializePageAllocator();
-uint64_t getAvailablePage();
-void releasePage(uint64_t page);
-uint64_t peekAvailablePage();
-int getIndexInStack();
-uint64_t getAvailableIndex();
-uint64_t getStackPage();
-void releaseStackPage(uint64_t stackpage);
-uint64_t peekAvailableStackPage();
 
 //-------------------------------------------------------------------------------------
 

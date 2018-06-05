@@ -104,7 +104,7 @@ uint64_t sysCallHandler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, 
     exitShell();
     return SUCCESS;
   case 29:
-    return getAvailablePage();
+    return (uint64_t)malloc(PAGE_SIZE);
   case 30:
     printBlockedThreadsList();
     return SUCCESS;
