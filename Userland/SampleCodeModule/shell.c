@@ -111,6 +111,7 @@ int callFunction(char *buffer)
 
 	int words;
 	char **argv;
+	int commandPid;
 
 	int foreground = 1;
 	if (*buffer == '&')
@@ -125,8 +126,9 @@ int callFunction(char *buffer)
 	{
 		if (strcmp(argv[0], commands[i].name) == 0)
 		{
-			execProcess(commands[i].function, words, argv, commands[i].name, foreground);
+			commandPid = execProcess(commands[i].function, words, argv, commands[i].name, foreground);
 			valid = 1;
+			sysWait(commandPid);
 		}
 	}
 
