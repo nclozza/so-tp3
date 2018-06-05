@@ -39,7 +39,6 @@ int sysWriteMessage(uint64_t content, uint64_t id);
 void sysPrintPIDS();
 int sysDeleteThisThread(int pid);
 void sysWhileTrue();
-//void sysWaitProcess(int pid);
 void sysWait(int pid);
 void sysCreateThread(int foreground, void * function, int argc, char** argv);
 

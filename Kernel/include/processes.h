@@ -59,8 +59,4 @@ threadADT getThread(process* p, int tid);
 
 int deleteThisProcess(int pid);
 
-/*void setProcessCpid(process *p, int pid);
-
-uint64_t getProcessPid(process *p);*/
-
 #endif

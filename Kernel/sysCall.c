@@ -113,8 +113,6 @@ uint64_t sysCallHandler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, 
   case 32:
     whileTrue();
     return SUCCESS;
-  /*case 38:
-    waitProcess((int) rsi);*/
   case 50:
     putThreadOnWait(getCurrentThread(), getThread(getProcessByPid((int)rsi), 0));
     yieldThread();

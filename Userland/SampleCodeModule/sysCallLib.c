@@ -219,11 +219,6 @@ void sysWhileTrue()
   sysCall(32, 0, 0, 0, 0, 0);
 }
 
-/*void sysWaitProcess(int pid)
-{
-  sysCall(38, (uint64_t)pid, 0, 0, 0, 0);
-}*/
-
 void sysWait(int pid)
 {
   sysCall(50,(uint64_t)pid,0,0,0,0);
