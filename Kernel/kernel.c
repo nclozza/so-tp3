@@ -9,6 +9,7 @@
 #include "scheduler.h"
 #include "pageallocator.h"
 #include "init.h"
+#include "buddyAllocator.h"
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -50,14 +51,97 @@ void *initializeKernelBinary()
 	return getStackBase();
 }
 
+int twoPow(int num)
+{
+	if (num == 0)
+	{
+		return 1;
+	}
+	return 2 * twoPow(num - 1);
+}
+
 int main()
 {
 	load_idt();
 	paintBackGround();
 	initializePageAllocator();
-	
 
-	runThread(getThread(createProcess((uint64_t)init,1, 0,0, "init"),0));
+	createHeap();
+
+	int *page1 = allocPage(NUMBER_OF_PAGES);
+	printInt(&page1[0], 155, 255, 0);
+	printString("\n", 155, 255, 0);
+	printInt(&page1[PAGE_SIZE], 155, 255, 0);
+	printString("\n", 155, 255, 0);
+
+	int *page2 = allocPage(2);
+	if (page2 == NULL)
+	{
+		printString("NULL\n", 155, 255, 0);
+	}
+	printInt(&page2[0], 155, 255, 0);
+	printString("\n", 155, 255, 0);
+	printString("\n", 155, 255, 0);
+	printString("\n", 155, 255, 0);
+
+	int i;
+	for (i = 0; i < 13; i++)
+	{
+		page2 = allocPage(twoPow(i));
+	}
+
+	/*
+	int *page1 = allocPage(NUMBER_OF_PAGES);
+	printInt(&page1[0], 155, 255, 0);
+	printString("\n", 155, 255, 0);
+
+	int *page2 = allocPage(NUMBER_OF_PAGES / 2);
+	printInt(&page2[0], 155, 255, 0);
+	printString("\n", 155, 255, 0);
+
+	printString("AFTER DEALLOC\n", 155, 255, 0);
+	printInt(deallocPage((char *)page1), 155, 255, 0);
+	printString("\n", 155, 255, 0);
+
+	page2 = allocPage(NUMBER_OF_PAGES / 2);
+	printInt(&page2[0], 155, 255, 0);
+	printString("\n", 155, 255, 0);
+
+	page1 = allocPage(NUMBER_OF_PAGES / 4);
+	printString("&PAGE1[0]\n", 155, 255, 0);
+	printInt(&page1[0], 155, 255, 0);
+	printString("\n", 155, 255, 0);
+	
+	int i;
+	for (i = 0; i < NUMBER_OF_PAGES / 4 + 1; i++)
+	{
+		page1[i] = 1;
+	}
+
+	int *page3 = allocPage(NUMBER_OF_PAGES / 4);
+	printString("&PAGE3[0]\n", 155, 255, 0);
+	printInt(&page3[0], 155, 255, 0);
+	printString("\n", 155, 255, 0);
+	printString("&PAGE1[NUMBER OF PAGES / 4]\n", 155, 255, 0);
+	printInt(&page1[(NUMBER_OF_PAGES / 4) * PAGE_SIZE], 155, 255, 0);
+	printString("\n", 155, 255, 0);
+
+	/*
+	for (i = 0; i < MEMORY / 10; i++)
+	{
+		printInt(page1[i * 10], 155, 255, 0);
+		printString("\n", 155, 255, 0);
+	}*/
+
+	/*
+	printInt(number, 155, 255, 0);
+	printString("\n", 155, 255, 0);
+	printInt(page1[0], 155, 255, 0);
+	printString("\n", 155, 255, 0);
+	printInt(page1[1], 155, 255, 0);
+	printString("\n", 155, 255, 0);
+	*/
+	// runThread(getThread(createProcess((uint64_t)init, 1, 0, 0, "init"), 0));
 
 	while (1)
 	{
