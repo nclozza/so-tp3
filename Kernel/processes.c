@@ -243,8 +243,14 @@ int deleteThisProcess(int pid)
 {
   if (pid != 0 && pid != 1)
   {
-    return removeProcess(getProcessByPid(pid));
+    process *p = getProcessByPid(pid);
+
+    for(int i = 0, x = 0; i < MAX_THREADS && x < p->threadCount; i++)
+    {
+      deleteThread(p->threads[i]);
+    }
   }
+
   return 0;
 }
 

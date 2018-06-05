@@ -159,8 +159,10 @@ void putThreadOnWait(threadADT t1, threadADT t2)
 {
   if (t1 == NULL || t2 == NULL)
     return;
+
+  t1->waiting = t2;
+
   blockThread(t1);
-  t2->waiting = t1;
 }
 
 int setFileOpen(threadADT t, int fd) {
@@ -172,4 +174,10 @@ int setFileOpen(threadADT t, int fd) {
 
 int fileIsOpen(threadADT t, int fd) {
 	return fd < MAX_FDS && CHECK_BIT(t->openFds, fd);
+}
+threadADT getThreadWaiting(threadADT t)
+{
+  if(t != NULL)
+    return t->waiting;
+  return NULL;
 }
