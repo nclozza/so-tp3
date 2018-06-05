@@ -7,27 +7,19 @@ void *malloc(uint64_t size)
 {
 	if (size <= PAGE_SIZE)
 	{
-		return (void *)getAvailablePage();
+		return allocPage(1);
 	}
 	else
 	{
-		return (void *)getStackPage();
+		return allocPage(MB / PAGE_SIZE);
 	}
 }
 
 void free(void *page)
 {
-	if ((uint64_t)page < MEMORY_PAGES_END)
+	if (page != NULL)
 	{
-		releasePage((uint64_t)page);
-	}
-	else if ((uint64_t)page > MEMORY_PAGES_END)
-	{
-		releaseStackPage((uint64_t)page);
-	}
-	else
-	{
-		printString("Error in freeing memory\n", 0, 0, 255);
+		deallocPage((char *)page);
 	}
 }
 

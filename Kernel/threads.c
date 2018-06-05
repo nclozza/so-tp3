@@ -22,7 +22,7 @@ threadADT createThread(int pid,int foreground, uint64_t rsp, int argc, char *arg
   newTCB->waiting = NULL;
 	newTCB->foreground = foreground;
 	newTCB->status = READY;
-  newTCB->stackPage = getStackPage();
+  newTCB->stackPage = malloc(MB / PAGE_SIZE);
 	newTCB->rsp = createNewThreadStack(rsp, newTCB->stackPage, argc, (uint64_t)argv);	
 	return newTCB; 
 } 

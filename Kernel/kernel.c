@@ -9,7 +9,7 @@
 #include "scheduler.h"
 #include "pageallocator.h"
 #include "init.h"
-#include "buddyAllocator.h"
+//#include "buddyAllocator.h"
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -68,6 +68,7 @@ int main()
 
 	createHeap();
 
+	/*
 	int *page1 = allocPage(NUMBER_OF_PAGES);
 	printInt(&page1[0], 155, 255, 0);
 	printString("\n", 155, 255, 0);
@@ -89,7 +90,7 @@ int main()
 	{
 		page2 = allocPage(twoPow(i));
 	}
-
+	*/
 	/*
 	int *page1 = allocPage(NUMBER_OF_PAGES);
 	printInt(&page1[0], 155, 255, 0);
@@ -125,7 +126,7 @@ int main()
 	printString("&PAGE1[NUMBER OF PAGES / 4]\n", 155, 255, 0);
 	printInt(&page1[(NUMBER_OF_PAGES / 4) * PAGE_SIZE], 155, 255, 0);
 	printString("\n", 155, 255, 0);
-
+	*/
 	/*
 	for (i = 0; i < MEMORY / 10; i++)
 	{
@@ -141,7 +142,7 @@ int main()
 	printInt(page1[1], 155, 255, 0);
 	printString("\n", 155, 255, 0);
 	*/
-	// runThread(getThread(createProcess((uint64_t)init, 1, 0, 0, "init"), 0));
+	runThread(getThread(createProcess((uint64_t)init, 1, 0, 0, "init"), 0));
 
 	while (1)
 	{
