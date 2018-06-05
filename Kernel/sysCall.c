@@ -89,7 +89,7 @@ uint64_t sysCallHandler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, 
   case 22:
     return closeMessage((char *)rsi, (int)rdx);
   case 23:
-    return runThread(getThread(createProcess(rsi,rdx, rcx, r8,(char *)r9),0));
+    return runThread(getThread(createProcess(rsi, rdx, rcx, r8,(char *)r9), 0));
   case 24:
     setForeground((int)rsi);
     return SUCCESS;

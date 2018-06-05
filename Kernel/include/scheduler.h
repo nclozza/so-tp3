@@ -45,5 +45,4 @@ void decreaseQuantum();
 void block(queueADT queue);
 void unblock(queueADT queue);
 
-
 #endif

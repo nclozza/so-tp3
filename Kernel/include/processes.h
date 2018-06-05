@@ -22,6 +22,7 @@ typedef struct
   uint64_t pid;
   uint64_t ppid;
   uint64_t openFds;
+  //uint64_t cpid;
   threadADT threads[MAX_THREADS];
   uint64_t threadCount;
 } process;
