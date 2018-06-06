@@ -126,7 +126,8 @@ uint64_t sysCallHandler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, 
     createPipeMutex();
     return SUCCESS;
   case 38:
-    closePipeMutex();   
+    closePipeMutex();
+    return SUCCESS;   
   case 50:
     putThreadOnWait(getCurrentThread(), getThread(getProcessByPid((int)rsi), 0));
     yieldThread();

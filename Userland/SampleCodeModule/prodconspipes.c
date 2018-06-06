@@ -141,7 +141,7 @@ void removeLastConsumerPipes(int *consc, int *consumers)
 }
 
 void runProdConsPipes()
-{
+{ 
   char c;
   int prodc = 0;
   int consc = 0;
@@ -244,11 +244,11 @@ void runProdConsPipes()
       sysPrintString("Quitting successfully\n\n", 0, 155, 255);
 
       //sysPrintString("1\n\n", 0, 155, 255);
-      //sysPipeClose(prodPipe);
+      sysPipeClose(prodPipe);
       //sysPrintString("2\n\n", 0, 155, 255);
-      //sysPipeClose(consPipe);
+      sysPipeClose(consPipe);
       //sysPrintString("3\n\n", 0, 155, 255);
-      //sysClosePipeMutex();
+      sysClosePipeMutex();
       //sysPrintString("4\n\n", 0, 155, 255);
       return;
     }
