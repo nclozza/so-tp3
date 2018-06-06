@@ -179,30 +179,37 @@ void printPIDS()
     printString("Name: ", 0, 155, 255);
     printString(processesTable[i]->name, 0, 155, 255);
     printString("\n", 0, 155, 255);
-
-    printString("Status: ", 0, 155, 255);
-    char printStatus = processesTable[i]->status;
-    if (printStatus == RUNNING)
+    printString("Threads: \n", 0, 155, 255);
+    for(int j = 0; j < processesTable[i]->threadCount; j++)
     {
-      printString("Running", 0, 155, 255);
+      printString("    TID: ", 0, 155, 255);
+      printInt(j,0,155,255);
+      printString("\n",0,155,255);
+      printString("    Status: ",0,155,255);
+      char printStatus = getThreadStatus(processesTable[i]->threads[j]);
+      if (printStatus == RUNNING)
+      {
+        printString("Running", 0, 155, 255);
+      }
+      else if (printStatus == READY)
+      {
+        printString("Ready", 0, 155, 255);
+      }
+      else if (printStatus == BLOCKED)
+      {
+        printString("Blocked", 0, 155, 255);
+      }
+      else if (printStatus == DELETE)
+      {
+        printString("Awaiting Deletion", 0, 155, 255);
+      }
+      else
+      {
+        printString("Error", 0, 155, 255);
+      }
+      printString("\n", 0, 155, 255);      
     }
-    else if (printStatus == READY)
-    {
-      printString("Ready", 0, 155, 255);
-    }
-    else if (printStatus == BLOCKED)
-    {
-      printString("Blocked", 0, 155, 255);
-    }
-    else if (printStatus == DELETE)
-    {
-      printString("Awaiting Deletion", 0, 155, 255);
-    }
-    else
-    {
-      printString("Error", 0, 155, 255);
-    }
-    printString("\n", 0, 155, 255);
+    
 
     printString("Data Page: ", 0, 155, 255);
     printInt((uint64_t)processesTable[i]->dataPage, 0, 155, 255);
@@ -233,7 +240,9 @@ void removeThreadFromProcess(process* p, int tid)
 threadADT getThread(process* p, int tid)
 { 
   if(p!=NULL)
+  {
     return p->threads[tid];
+  }
   return NULL;
 }
 
@@ -252,4 +261,23 @@ int deleteThisProcess(int pid)
 uint64_t getProcessThreadCount(int pid)
 {
   return processesTable[pid]->threadCount;
+}
+
+int getAndIncreaseThreadCount(process* p)
+{
+  if(p!= NULL)
+  {
+    int n = p->threadCount;
+    p->threadCount++;
+    return n;
+  }  
+  return -1;
+}
+
+void addToProcess(threadADT t, int pid, int tid)
+{
+  if(processesTable[pid] != NULL)
+  {
+    processesTable[pid]->threads[tid] = t;
+  }
 }

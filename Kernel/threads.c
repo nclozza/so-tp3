@@ -14,17 +14,33 @@ typedef struct thread_t
   uint64_t stackPage;
   struct thread_t* waiting;
 } thread_t;
-
+void aboutThread(threadADT t)
+{
+  printString("\nThread info",0,155,255);
+  printString("\nPID: ",0,155,255);
+  printInt(t->pid,0,155,255);
+  printString("\nTID: ",0,155,255);
+  printInt(t->tid,0,155,255);
+  printString("\nSTATUS: ",0,155,255);
+  printInt(t->status,0,155,255);
+  printString("\nFOREGROUND: ",0,155,255);
+  printInt(t->foreground,0,155,255);
+  printString("\nWAITING THREAD: ",0,155,255);
+  if(t->waiting != NULL)
+    printInt(t->waiting->pid,0,155,255);
+  printString("\n-----------------------\n",0,155,255);
+}
 threadADT createThread(int pid,int foreground, uint64_t rsp, int argc, char *argv[], int tid){ 	
 	threadADT newTCB =	(threadADT)malloc(sizeof(thread_t)); 	
 	newTCB->tid = tid; 	
 	newTCB->pid = pid; 	
   newTCB->waiting = NULL;
 	newTCB->foreground = foreground;
-	newTCB->status = READY;
+	newTCB->status = 1;
   newTCB->stackPage = (uint64_t)malloc(MB);
 	newTCB->rsp = createNewThreadStack(rsp, newTCB->stackPage, argc, (uint64_t)argv);	
-	return newTCB; 
+  addToProcess(newTCB,pid,tid);	
+  return newTCB; 
 } 
 
 /* Llena el stack para que sea hookeado al cargar un nuevo proceso
@@ -96,7 +112,7 @@ uint64_t getThreadPid(threadADT t)
 void blockThread(threadADT t)
 {
   if (t != NULL && t->status != DELETE)
-  {
+  {   
     t->status = BLOCKED;
   }
 }
@@ -155,10 +171,18 @@ int isThreadDeleted(threadADT t)
 }
 
 void putThreadOnWait(threadADT t1, threadADT t2)
-{
+{    
   if (t1 == NULL || t2 == NULL)
-    return;
-
+    return;    
   blockThread(t1);
-  t2->waiting = t1;
+  t2->waiting = t1; 
+}
+
+int getThreadStatus(threadADT t)
+{
+  if(t!=NULL)
+  {
+    return t->status;
+  }
+  return -1;
 }

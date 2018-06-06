@@ -11,6 +11,7 @@
 #define REMOVE_PRODUCER 'o'
 #define REMOVE_CONSUMER 'x'
 #define QUIT 'q'
+#define PS 'l'
 
 #include <stdint.h>
 

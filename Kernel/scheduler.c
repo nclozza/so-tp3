@@ -4,6 +4,7 @@
 #include "videoDriver.h"
 #include "mutex.h"
 #include "processes.h"
+#include "thread.h"
 #include "defs.h"
 #include "interrupts.h"
 

@@ -168,8 +168,5 @@ void parseParams(char *command, int *argc, char ***argv)
 		}
 	} while (command[i++] != 0);
 
-	sysPrintString(argv[0][0], CB, CG, CR);
-	sysPrintString("\n", CB, CG, CR);
-
 	(*argc) = count;
 }

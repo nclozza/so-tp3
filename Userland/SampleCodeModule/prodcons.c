@@ -86,6 +86,7 @@ void removeLastProducer(int *prodc)
     sysMutexDown(bufferMutex);
     int lastProd = producers[(*prodc)-1];
     sysRemoveThreadFromProcess(lastProd);
+    *prodc -= 1;
     sysMutexUp(bufferMutex);
     return;
   }
@@ -102,6 +103,7 @@ void removeLastConsumer(int *consc)
     sysMutexDown(bufferMutex);
     int lastConsc = consumers[(*consc)-1];
     sysRemoveThreadFromProcess(lastConsc);
+    *consc -= 1;
     sysMutexUp(bufferMutex);
     return;
   }
@@ -113,8 +115,9 @@ void runProdCons()
   int prodc = 0;
   int consc = 0;
 
+
   items = 0;
-  bufferMutex = sysMutexInit("bufferMutex");
+  bufferMutex = sysMutexInit("bufferMutex");  
   fullSem = sysSemOpen("fullSem");
   emptySem = sysSemOpen("emptySem");
   sysSemWait(emptySem); //Semaphores are initialized in 1 and I need it to start with 0;
@@ -129,6 +132,7 @@ void runProdCons()
   sysPrintString("- Press 'o' to remove a producer\n", 0, 155, 255);
   sysPrintString("- Press 'x' to remove a consumer\n", 0, 155, 255);
   sysPrintString("- Press 'q' to quit prodcons\n\n", 0, 155, 255);
+  sysPrintString("- Press 'l' to show ps\n\n", 0, 155, 255);
 
 
   while(1)
@@ -197,13 +201,18 @@ void runProdCons()
       break;
 
       case QUIT:
-      while (tid > 0) {
+      sysPrintInt(tid,0,155,255);
+      while (tid >= 0) {
         sysRemoveThreadFromProcess(tid);
         tid--;
       }
       sysPrintString("Quitting successfully\n\n", 0, 155, 255);
       closeSemaphoresAndMutexes();
       return;
+
+      case PS:
+      sysPrintPIDS();      
+      break;
     }
   }
 }
