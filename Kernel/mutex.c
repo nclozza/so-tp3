@@ -19,13 +19,16 @@ typedef struct mutex_t
 } mutex_t;
 
 mutex_t *mutexInit(char *name)
-{
+{	
 	int i;
 	for (i = 0; i < numberOfMutexes; i++)
-	{
-		if (strcmpKernel(name, mutex[i]->name) == 0)
+	{		
+		if(mutex[i] != NULL)
 		{
-			return mutex[i];
+			if (strcmpKernel(name, mutex[i]->name) == 0)
+			{			
+				return mutex[i];
+			}
 		}
 	}
 	mutexADT newMutex = (mutexADT)malloc(sizeof(mutex_t));
@@ -60,8 +63,9 @@ int mutexLock(mutex_t *mut)
 
 int mutexUnlock(mutex_t *mut)
 {
+	unblockThread(mut->blockedThreads[0]);
 	for(int i = 0; i < MAX_THREADS; i++){		
-		unblockThread(mut->blockedThreads[i]);
+		
 	}
 	mut->value = 1;
 	return mut->value;
