@@ -2,9 +2,9 @@
 #include "defs.h"
 #include "lib.h"
 #include "init.h"
-#include "pageallocator.h"
+#include "memoryAllocator.h"
 #include "mutex.h"
-#include "memorymanager.h"
+#include "memoryManager.h"
 #include "scheduler.h"
 #include "videoDriver.h"
 

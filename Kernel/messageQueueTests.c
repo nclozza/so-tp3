@@ -1,6 +1,6 @@
 #include "messageQueue.h"
 #include "testlib.h"
-#include "memorymanager.h"
+#include "memoryManager.h"
 #include "videoDriver.h"
 #include "lib.h"
 #include "messageQueueTests.h"

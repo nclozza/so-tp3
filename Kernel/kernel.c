@@ -7,9 +7,8 @@
 #include "idtLoader.h"
 #include "stdio.h"
 #include "scheduler.h"
-#include "pageallocator.h"
+#include "memoryAllocator.h"
 #include "init.h"
-//#include "buddyAllocator.h"
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -51,22 +50,11 @@ void *initializeKernelBinary()
 	return getStackBase();
 }
 
-int twoPow(int num)
-{
-	if (num == 0)
-	{
-		return 1;
-	}
-	return 2 * twoPow(num - 1);
-}
-
 int main()
 {
 	load_idt();
 	paintBackGround();
-	//initializePageAllocator();
-
-	createHeap();
+	initializeMemoryAllocator();
 
 	runThread(getThread(createProcess((uint64_t)init, 1, 0, 0, "init"), 0));
 

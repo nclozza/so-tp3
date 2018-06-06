@@ -3,12 +3,12 @@
 #include "videoDriver.h"
 #include "time.h"
 #include "keyboardDriver.h"
-#include "memorymanager.h"
+#include "memoryManager.h"
 #include "mutex.h"
 #include "semaphore.h"
 #include "messageQueue.h"
 #include "scheduler.h"
-#include "pageallocator.h"
+#include "memoryAllocator.h"
 
 #define ERROR 1
 #define SUCCESS 0

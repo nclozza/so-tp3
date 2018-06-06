@@ -1,25 +1,19 @@
 #include <stdint.h>
-#include "pageallocator.h"
+#include "memoryAllocator.h"
 #include "videoDriver.h"
 #include "lib.h"
+#include "memoryManager.h"
 
 void *malloc(uint64_t size)
 {
-	if (size <= PAGE_SIZE)
-	{
-		return allocPage(1);
-	}
-	else
-	{
-		return allocPage(MB / PAGE_SIZE);
-	}
+	return allocMemory(CEIL((double)size / PAGE_SIZE));
 }
 
 void free(void *page)
 {
 	if (page != NULL)
 	{
-		deallocPage((char *)page);
+		deallocMemory((char *)page);
 	}
 }
 
