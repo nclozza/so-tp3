@@ -4,7 +4,7 @@
 #include "memoryAllocator.h"
 
 typeBuddyArray buddyArray;
-char *baseMemory = (char *)DATA_ADDRESS;
+char *baseMemory = (char *)START_FREE_MEMORY;
 
 void initializeMemoryAllocator()
 {

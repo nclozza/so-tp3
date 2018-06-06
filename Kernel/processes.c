@@ -90,6 +90,7 @@ void setNullAllThreads(process *process)
 
 int removeProcess(process *p)
 {
+
   if (p != NULL)
   {
     processesNumber--;
@@ -101,7 +102,7 @@ int removeProcess(process *p)
       if(removeThread(p->threads[i]) == 0)
         x++;
     }
-
+    free((void *)p->threads);
     free((void *)p);
     return 0;
   }

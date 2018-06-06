@@ -34,15 +34,14 @@ void removeItemFromBuffer()
   sysPrintString("\n\n", 0,155,255);
 }
 
-void producer(int argc)
+void producer()
 {
   while(1)
   { 
     sysSemWait(fullSem);
     sysMutexDown(bufferMutex);
 
-    sysPrintString("Producer: ",0,155,255);
-    sysPrintInt(argc,0,155,255);
+    sysPrintString("Producer",0,155,255);
     sysPrintString("\n", 0,155,255);
     putItemIntoBuffer();
 
@@ -51,15 +50,14 @@ void producer(int argc)
   }
 }
 
-void consumer(int argc)
+void consumer()
 {
   while(1)
   {
     sysSemWait(emptySem);
     sysMutexDown(bufferMutex);
 
-    sysPrintString("Consumer: ",0,155,255);
-    sysPrintInt(argc,0,155,255);
+    sysPrintString("Consumer",0,155,255);
     sysPrintString("\n", 0,155,255);
     removeItemFromBuffer();
 

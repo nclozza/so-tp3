@@ -63,9 +63,8 @@ int mutexLock(mutex_t *mut)
 
 int mutexUnlock(mutex_t *mut)
 {
-	unblockThread(mut->blockedThreads[0]);
 	for(int i = 0; i < MAX_THREADS; i++){		
-		
+		unblockThread(mut->blockedThreads[i]);
 	}
 	mut->value = 1;
 	return mut->value;

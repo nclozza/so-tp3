@@ -56,6 +56,18 @@ int main()
 	paintBackGround();
 	initializeMemoryAllocator();
 
+	void *page1 = malloc(MB);
+	if (page1 == NULL)
+	{
+		printString("NULL PAGE 1\n", 155, 255, 0);
+	}
+
+	void *page2 = malloc(MB);
+	if (page2 == NULL)
+	{
+		printString("NULL PAGE 1\n", 155, 255, 0);
+	}
+
 	runThread(getThread(createProcess((uint64_t)init, 1, 0, 0, "init"), 0));
 
 	while (1)
