@@ -6,12 +6,15 @@
 #include "mathLib.h"
 #include "prodcons.h"
 #include "sysCallLib.h"
-#include "execProcess.h"
+
 
 uint64_t bufferMutex = 0;
 int fullSem = 0;
 int emptySem = 0;
 static int items = 0;
+static int tid = 0;
+int producers[MAX_PRODUCERS];
+int consumers[MAX_CONSUMERS];
 
 void putItemIntoBuffer()
 {
@@ -72,7 +75,7 @@ void closeSemaphoresAndMutexes()
   sysSemClose(emptySem);
 }
 
-void removeLastProducer(int *prodc, int *producers)
+void removeLastProducer(int *prodc)
 {
   if(*prodc == 0)
   {
@@ -81,13 +84,14 @@ void removeLastProducer(int *prodc, int *producers)
   else
   {
     sysMutexDown(bufferMutex);
-    sysDeleteThisThread(producers[--*prodc]);
+    int lastProd = producers[(*prodc)-1];
+    sysRemoveThreadFromProcess(lastProd);
     sysMutexUp(bufferMutex);
     return;
   }
 }
 
-void removeLastConsumer(int *consc, int *consumers)
+void removeLastConsumer(int *consc)
 {
   if(*consc == 0) 
   {
@@ -96,7 +100,8 @@ void removeLastConsumer(int *consc, int *consumers)
   else
   {
     sysMutexDown(bufferMutex);
-    sysDeleteThisThread(consumers[--*consc]);
+    int lastConsc = consumers[(*consc)-1];
+    sysRemoveThreadFromProcess(lastConsc);
     sysMutexUp(bufferMutex);
     return;
   }
@@ -104,11 +109,9 @@ void removeLastConsumer(int *consc, int *consumers)
 
 void runProdCons()
 {
-  char c;
+  char c;  
   int prodc = 0;
   int consc = 0;
-  int producers[MAX_PRODUCERS];
-  int consumers[MAX_CONSUMERS];
 
   items = 0;
   bufferMutex = sysMutexInit("bufferMutex");
@@ -142,9 +145,11 @@ void runProdCons()
       {
         sysPrintString("Added producer ", 0, 155, 255);
         sysPrintInt(prodc + 1, 0, 155, 255);
-        sysPrintString("\n\n", 0, 155, 255);
-        producers[prodc] = execProcess(producer, prodc + 1, NULL, "producer", 1);
+        sysPrintString("\n\n", 0, 155, 255);        
+        sysCreateThread(1,producer,0,NULL);      
+        producers[prodc] = tid;
         prodc++;
+        tid++;        
       }
       break;
 
@@ -157,9 +162,11 @@ void runProdCons()
       {
         sysPrintString("Added consumer ", 0, 155, 255);
         sysPrintInt(consc + 1, 0, 155, 255);
-        sysPrintString("\n\n", 0, 155, 255);
-        consumers[consc] = execProcess(consumer, consc + 1, NULL, "consumer", 1);
+        sysPrintString("\n\n", 0, 155, 255);                
+        sysCreateThread(1,consumer,0,NULL);        
+        consumers[consc] = tid;
         consc++;
+        tid++;        
       }
       break;
 
@@ -170,9 +177,8 @@ void runProdCons()
       }
       else
       {
-        removeLastProducer(&prodc, producers);
-        sysPrintString("Removed producer ", 0, 155, 255);
-        sysPrintInt(prodc + 1, 0, 155, 255);
+        removeLastProducer(&prodc);        
+        sysPrintString("Removed producer ", 0, 155, 255);        
         sysPrintString("\n\n", 0, 155, 255);
       }
       break;
@@ -184,19 +190,16 @@ void runProdCons()
       }
       else
       {
-        removeLastConsumer(&consc, consumers);
-        sysPrintString("Removed consumer ", 0, 155, 255);
-        sysPrintInt(consc + 1, 0, 155, 255);
+        removeLastConsumer(&consc);        
+        sysPrintString("Removed consumer ", 0, 155, 255);        
         sysPrintString("\n\n", 0, 155, 255);
       }
       break;
 
       case QUIT:
-      while (consc > 0) {
-        removeLastConsumer(&consc, consumers);
-      } 
-      while (prodc > 0) {
-        removeLastProducer(&prodc, producers);
+      while (tid > 0) {
+        sysRemoveThreadFromProcess(tid);
+        tid--;
       }
       sysPrintString("Quitting successfully\n\n", 0, 155, 255);
       closeSemaphoresAndMutexes();

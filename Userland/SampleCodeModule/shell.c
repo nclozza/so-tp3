@@ -140,15 +140,8 @@ int callFunction(char *buffer)
 }
 
 void parseParams(char *command, int *argc, char ***argv)
-{
-	sysPrintString(command, CB, CG, CR);
-	sysPrintString("\n", CB, CG, CR);
-	char buffer[BUFFERSIZE];
-	int hola;
-	for (hola = 0; hola < BUFFERSIZE; hola++)
-	{
-		buffer[hola] = 0;
-	}
+{	
+	char buffer[BUFFERSIZE];		
 	int count = 0, size = 0, i = 0, j = 0;
 	do
 	{

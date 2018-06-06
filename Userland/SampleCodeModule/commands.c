@@ -21,15 +21,15 @@ void printName(int argc, char *argv[])
 {
 	if (argc > 1)
 	{
-		sysSemWait(s);
+		// sysSemWait(s);
 		for (int i = 0; i < 100; i++)
 		{
-			// sysMutexDown(m);
+			sysMutexDown(m);
 			sysPrintString("I'm process: ", 0, 155, 255);
 			sysPrintString(argv[1], 0, 155, 255);
-			// sysMutexUp(m);
+			sysMutexUp(m);
 		}
-		sysSemPost(s);
+		// sysSemPost(s);
 	}
 	else
 	{

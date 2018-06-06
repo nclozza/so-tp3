@@ -119,6 +119,9 @@ uint64_t sysCallHandler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, 
     return SUCCESS;
   case 51:
     return runThread(createThread(getProcessPid(getCurrentProcess()), rsi,rdx,rcx,(char**)r8, getProcessThreadCount(getProcessPid(getCurrentProcess()))));
+  case 52:
+    removeThreadFromProcess(getCurrentProcess(),(int)rsi);
+    return SUCCESS;
   }
   return ERROR;
 }
