@@ -44,6 +44,7 @@ int sysPipeClose(int id);
 int sysPipeWrite(int id, const void * buf, int bytes);
 int sysPipeRead(int id, void * buf, int bytes);
 void sysCreatePipeMutex();
+void sysClosePipeMutex();
 void sysWait(int pid);
 void sysCreateThread(int foreground, void * function, int argc, char** argv);
 

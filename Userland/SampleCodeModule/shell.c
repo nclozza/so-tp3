@@ -33,6 +33,8 @@ static command commands[] = {
 		{"opcode\n", opcode},
 		{"prodcons\0", prodcons},
 		{"prodcons\n", prodcons},
+		{"prodconsPipes\0", prodconsPipes},
+		{"prodconsPipes\n", prodconsPipes},
 		{"ps\0", ps},
 		{"ps\n", ps},
 		{"print\n", printName},

@@ -243,6 +243,12 @@ void sysCreatePipeMutex()
 {
   sysCall(37, 0, 0, 0, 0, 0);
 }
+
+void sysClosePipeMutex()
+{
+  sysCall(38, 0, 0, 0, 0, 0);
+}
+
 void sysWait(int pid)
 {
   sysCall(50,(uint64_t)pid,0,0,0,0);
