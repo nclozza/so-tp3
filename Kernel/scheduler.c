@@ -1,4 +1,4 @@
-#include "memorymanager.h"
+#include "memoryManager.h"
 #include "scheduler.h"
 #include "dirs.h"
 #include "videoDriver.h"

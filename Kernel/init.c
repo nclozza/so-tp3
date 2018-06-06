@@ -3,7 +3,7 @@
 #include "videoDriver.h"
 #include "tests.h"
 #include "processes.h"
-#include "memorymanager.h"
+#include "memoryManager.h"
 
 static void *const sampleCodeModuleAddress = (void *)0x400000;
 

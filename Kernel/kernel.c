@@ -7,7 +7,7 @@
 #include "idtLoader.h"
 #include "stdio.h"
 #include "scheduler.h"
-#include "pageallocator.h"
+#include "memoryAllocator.h"
 #include "init.h"
 
 extern uint8_t text;
@@ -54,10 +54,9 @@ int main()
 {
 	load_idt();
 	paintBackGround();
-	initializePageAllocator();
-	
+	initializeMemoryAllocator();
 
-	runThread(getThread(createProcess((uint64_t)init,1, 0,0, "init"),0));
+	runThread(getThread(createProcess((uint64_t)init, 1, 0, 0, "init"), 0));
 
 	while (1)
 	{

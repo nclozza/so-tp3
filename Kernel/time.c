@@ -1,7 +1,7 @@
 #include "time.h"
 #include "scheduler.h"
 #include "defs.h"
-#include "memorymanager.h"
+#include "memoryManager.h"
 #include "videoDriver.h"
 #include "interrupts.h"
 

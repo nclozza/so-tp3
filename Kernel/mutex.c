@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include "mutex.h"
-#include "memorymanager.h"
+#include "memoryManager.h"
 #include "lib.h"
 #include "processes.h"
 #include "scheduler.h"

@@ -1,8 +1,8 @@
 #include "thread.h"
 #include "processes.h"
 #include "defs.h"
-#include "memorymanager.h"
-#include "pageallocator.h"
+#include "memoryManager.h"
+#include "memoryAllocator.h"
 #include "videoDriver.h"
 typedef struct thread_t
 {
@@ -22,7 +22,7 @@ threadADT createThread(int pid,int foreground, uint64_t rsp, int argc, char *arg
   newTCB->waiting = NULL;
 	newTCB->foreground = foreground;
 	newTCB->status = READY;
-  newTCB->stackPage = getStackPage();
+  newTCB->stackPage = (uint64_t)malloc(MB / PAGE_SIZE);
 	newTCB->rsp = createNewThreadStack(rsp, newTCB->stackPage, argc, (uint64_t)argv);	
 	return newTCB; 
 } 
