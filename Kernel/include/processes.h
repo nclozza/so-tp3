@@ -19,6 +19,7 @@ typedef struct
   void *dataPage[MAX_DATA_PAGES];
   uint64_t pid;
   uint64_t ppid;
+  //uint64_t cpid;
   threadADT threads[MAX_THREADS];
   uint64_t threadCount;
 } process;

@@ -95,7 +95,10 @@ void removeLastConsumer(int *consc, int *consumers)
   }
   else
   {
+    sysMutexDown(bufferMutex);
     sysDeleteThisThread(consumers[--*consc]);
+    sysMutexUp(bufferMutex);
+    return;
   }
 }
 
