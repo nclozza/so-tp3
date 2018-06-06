@@ -70,6 +70,4 @@ int isThreadDeleted(threadADT t);
 
 void putThreadOnWait(threadADT t1, threadADT t2);
 
-threadADT getThreadWaiting(threadADT t);
-
 #endif

@@ -159,14 +159,6 @@ void putThreadOnWait(threadADT t1, threadADT t2)
   if (t1 == NULL || t2 == NULL)
     return;
 
-  t1->waiting = t2;
-
   blockThread(t1);
-}
-
-threadADT getThreadWaiting(threadADT t)
-{
-  if(t != NULL)
-    return t->waiting;
-  return NULL;
+  t2->waiting = t1;
 }
