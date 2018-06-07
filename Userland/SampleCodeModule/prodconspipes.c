@@ -6,34 +6,13 @@
 #include "mathLib.h"
 #include "prodconspipes.h"
 #include "sysCallLib.h"
-#include "execProcess.h"
 
-//uint64_t bufferMutex = 0;
-//int fullSem = 0;
-//int emptySem = 0;
-//int prodPipe;
-//int consPipe;
+int producersPipes[MAX_PRODUCERS];
+int consumersPipes[MAX_CONSUMERS];
+static int tidPipes = 1;
 static int itemsPipes = 0;
 
-/*void putItemIntoBuffer()
-{
-  items++;
-  sysPrintString("Added an item\n",0,155,255);
-  sysPrintString("Total items: ", 0,155,255);
-  sysPrintInt(items,0,155,255);
-  sysPrintString("\n\n", 0,155,255);
-}
-
-void removeItemFromBuffer()
-{
-  items--;
-  sysPrintString("Removed an item\n",0,155,255);
-  sysPrintString("Total items: ", 0,155,255);
-  sysPrintInt(items,0,155,255);
-  sysPrintString("\n\n", 0,155,255);
-}*/
-
-void producerPipes(int argc)
+void producerPipes()
 {
   int prodPipe = sysPipeOpen(PRODUCER_PIPE);
   int consPipe = sysPipeOpen(CONSUMER_PIPE);
@@ -42,12 +21,9 @@ void producerPipes(int argc)
 
   while(1)
   { 
-    //sysSemWait(fullSem);
-    //sysMutexDown(bufferMutex);
     sysPipeRead(prodPipe, &read, sizeof(int));
 
-    sysPrintString("Producer: ",0,155,255);
-    sysPrintInt(argc,0,155,255);
+    sysPrintString("Producer",0,155,255);
     sysPrintString("\n", 0,155,255);
 
     int randItem = rand();
@@ -61,16 +37,10 @@ void producerPipes(int argc)
     sysPrintString("Total items: ", 0,155,255);
     sysPrintInt(itemsPipes,0,155,255);
     sysPrintString("\n\n", 0,155,255);
-
-
-    //putItemIntoBuffer();
-
-    //sysMutexUp(bufferMutex);
-    //sysSemPost(emptySem);
   }
 }
 
-void consumerPipes(int argc)
+void consumerPipes()
 {
   int prodPipe = sysPipeOpen(PRODUCER_PIPE);
   int consPipe = sysPipeOpen(CONSUMER_PIPE);
@@ -80,13 +50,9 @@ void consumerPipes(int argc)
 
   while(1)
   {
-    //sysSemWait(emptySem);
-    //sysMutexDown(bufferMutex);
-
     sysPipeRead(consPipe, &read, sizeof(int));
 
-    sysPrintString("Consumer: ",0,155,255);
-    sysPrintInt(argc,0,155,255);
+    sysPrintString("Consumer",0,155,255);
     sysPrintString("\n", 0,155,255);
 
     sysPrintString("Removed an item: ",0,155,255);
@@ -99,21 +65,10 @@ void consumerPipes(int argc)
     sysPrintString("Total items: ", 0,155,255);
     sysPrintInt(itemsPipes,0,155,255);
     sysPrintString("\n\n", 0,155,255);
-
-    //removeItemFromBuffer();
-
-    //sysMutexUp(bufferMutex);
-    //sysSemPost(fullSem);
   }
 }
 
-/*void closePipesAndMutexes()
-{
-  sysPipeClose()
-  sysClosePipeMutex();
-}*/
-
-void removeLastProducerPipes(int *prodc, int *producers)
+void removeLastProducerPipes(int *prodc)
 {
   if(*prodc == 0)
   {
@@ -121,14 +76,14 @@ void removeLastProducerPipes(int *prodc, int *producers)
   }
   else
   {
-    //sysMutexDown(bufferMutex);
-    sysDeleteThisThread(producers[--*prodc]);
-    //sysMutexUp(bufferMutex);
+    int lastProd = producersPipes[(*prodc)-1];
+    sysRemoveThreadFromProcess(lastProd);
+    *prodc -= 1;
     return;
   }
 }
 
-void removeLastConsumerPipes(int *consc, int *consumers)
+void removeLastConsumerPipes(int *consc)
 {
   if(*consc == 0) 
   {
@@ -136,7 +91,10 @@ void removeLastConsumerPipes(int *consc, int *consumers)
   }
   else
   {
-    sysDeleteThisThread(consumers[--*consc]);
+    int lastCons = consumersPipes[(*consc)-1];
+    sysRemoveThreadFromProcess(lastCons);
+    *consc -= 1;
+    return;
   }
 }
 
@@ -145,21 +103,15 @@ void runProdConsPipes()
   char c;
   int prodc = 0;
   int consc = 0;
-  int producers[MAX_PRODUCERS];
-  int consumers[MAX_CONSUMERS];
   int empty = 0;
 
   itemsPipes = 0;
   int prodPipe = sysPipeOpen(PRODUCER_PIPE);
   int consPipe = sysPipeOpen(CONSUMER_PIPE);
   sysCreatePipeMutex();
-  //bufferMutex = sysMutexInit("bufferMutex");
-  //fullSem = sysSemOpen("fullSem");
-  //emptySem = sysSemOpen("emptySem");
-  //sysSemWait(emptySem); //Semaphores are initialized in 1 and I need it to start with 0
 
   //Initialize the pipe with zeros indicating the amount of space available to produce
-  for(int i = 0; i < BUFFER_SIZE - 1; i++)
+  for(int i = 0; i < BUFFER_SIZE; i++)
   {
     sysPipeWrite(prodPipe, &empty, sizeof(int)); 
   }
@@ -168,8 +120,8 @@ void runProdConsPipes()
   sysPrintString("- Press 'c' to add a consumer\n", 0, 155, 255);
   sysPrintString("- Press 'o' to remove a producer\n", 0, 155, 255);
   sysPrintString("- Press 'x' to remove a consumer\n", 0, 155, 255);
-  sysPrintString("- Press 'q' to quit prodcons\n\n", 0, 155, 255);
-
+  sysPrintString("- Press 'q' to quit prodcons\n", 0, 155, 255);
+  sysPrintString("- Press 'l' to show ps\n\n", 0, 155, 255);
 
   while(1)
   {
@@ -185,9 +137,11 @@ void runProdConsPipes()
       {
         sysPrintString("Added producer ", 0, 155, 255);
         sysPrintInt(prodc + 1, 0, 155, 255);
-        sysPrintString("\n\n", 0, 155, 255);
-        producers[prodc] = execProcess(producerPipes, prodc + 1, NULL, "producerPipes", 1);
+        sysPrintString("\n\n", 0, 155, 255);        
+        sysCreateThread(1,producerPipes,0,NULL);      
+        producersPipes[prodc] = tidPipes;
         prodc++;
+        tidPipes++;        
       }
       break;
 
@@ -200,9 +154,11 @@ void runProdConsPipes()
       {
         sysPrintString("Added consumer ", 0, 155, 255);
         sysPrintInt(consc + 1, 0, 155, 255);
-        sysPrintString("\n\n", 0, 155, 255);
-        consumers[consc] = execProcess(consumerPipes, consc + 1, NULL, "consumerPipes", 1);
+        sysPrintString("\n\n", 0, 155, 255);                
+        sysCreateThread(1,consumerPipes,0,NULL);        
+        consumersPipes[consc] = tidPipes;
         consc++;
+        tidPipes++;        
       }
       break;
 
@@ -213,9 +169,8 @@ void runProdConsPipes()
       }
       else
       {
-        removeLastProducerPipes(&prodc, producers);
-        sysPrintString("Removed producer ", 0, 155, 255);
-        sysPrintInt(prodc + 1, 0, 155, 255);
+        removeLastProducerPipes(&prodc);        
+        sysPrintString("Removed producer ", 0, 155, 255);        
         sysPrintString("\n\n", 0, 155, 255);
       }
       break;
@@ -227,30 +182,27 @@ void runProdConsPipes()
       }
       else
       {
-        removeLastConsumerPipes(&consc, consumers);
-        sysPrintString("Removed consumer ", 0, 155, 255);
-        sysPrintInt(consc + 1, 0, 155, 255);
+        removeLastConsumerPipes(&consc);        
+        sysPrintString("Removed consumer ", 0, 155, 255);        
         sysPrintString("\n\n", 0, 155, 255);
       }
       break;
 
-      case QUIT:
-      while (consc > 0) {
-        removeLastConsumerPipes(&consc, consumers);
-      } 
-      while (prodc > 0) {
-        removeLastProducerPipes(&prodc, producers);
+      case QUIT: 
+      while (tidPipes >= 0) {
+        sysRemoveThreadFromProcess(tidPipes);
+        tidPipes--;
       }
-      sysPrintString("Quitting successfully\n\n", 0, 155, 255);
 
-      //sysPrintString("1\n\n", 0, 155, 255);
       sysPipeClose(prodPipe);
-      //sysPrintString("2\n\n", 0, 155, 255);
       sysPipeClose(consPipe);
-      //sysPrintString("3\n\n", 0, 155, 255);
       sysClosePipeMutex();
-      //sysPrintString("4\n\n", 0, 155, 255);
+      sysPrintString("Quitting successfully\n\n", 0, 155, 255);
       return;
+
+      case PS:
+      sysPrintPIDS();      
+      break;
     }
   }
 }
