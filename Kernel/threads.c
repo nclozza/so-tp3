@@ -39,6 +39,7 @@ threadADT createThread(int pid, int foreground, uint64_t rsp, int argc, char *ar
   newTCB->waiting = NULL;
   newTCB->foreground = foreground;
   newTCB->status = 1;
+  newTCB->openFds = 0;
   newTCB->stackPage = (uint64_t)malloc(MB);
   newTCB->rsp = createNewThreadStack(rsp, newTCB->stackPage, argc, (uint64_t)argv);
   addToProcess(newTCB, pid, tid);

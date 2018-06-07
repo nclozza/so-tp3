@@ -140,6 +140,20 @@ void echo(int argc, char *argv[])
 	sysEndThread();
 }
 
+void echoPIPE(int argc, char *argv[])
+{
+	sysPrintString("PIPE\n",0,155,255);
+	for (int i = 1; i < argc; i++)
+	{
+		sysPrintString(argv[i], B, G, R);
+		sysPrintString(" ", B, G, R);
+	}
+
+	sysPrintString("\n", B, G, R);
+
+	sysEndThread();
+}
+
 void clear(int argc, char *argv[])
 {
 	if (argc != 1)
