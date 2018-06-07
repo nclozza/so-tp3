@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include "videoDriver.h"
 
-char* name;
+char *name;
 int openedSemaphore = -1;
 int testingSemaphore = -1;
 int testingSemaphoreValue;
@@ -69,7 +69,7 @@ void thenSemaphoreIsReturned()
 
 void givenASemaphore()
 {
-	if(testingSemaphore == -1 && openedSemaphore !=-1)
+	if (testingSemaphore == -1 && openedSemaphore != -1)
 		testingSemaphore = openedSemaphore;
 }
 
@@ -98,11 +98,11 @@ void thenSizeOfSemaphoreListIncreases()
 
 void whenSemaphoreIsClosed()
 {
-	if(testingSemaphore!=-1)
+	if (testingSemaphore != -1)
 		semClose(testingSemaphore);
 }
 void thenSizeOfSemaphoreListDecreases()
-{	
+{
 	listSize--;
 	size = semaphoresListSize();
 	checkSizeOfSemaphoreList(listSize, size);

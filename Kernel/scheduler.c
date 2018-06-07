@@ -23,13 +23,13 @@ threadADT getCurrentThread()
 	return current->t;
 }
 
-process* getCurrentProcess()
+process *getCurrentProcess()
 {
 	return getProcessByPid(getThreadPid(current->t));
 }
 
 uint64_t nextThread(uint64_t current_rsp)
-{	
+{
 	if (current == NULL)
 	{
 		return current_rsp;
@@ -86,11 +86,11 @@ static void addThread(threadADT t)
 	}
 }
 
-void yieldThread()	
-{	
+void yieldThread()
+{
 	current->next->quantum += 1;
-	current->quantum = 0;	
-	_yieldThread();	
+	current->quantum = 0;
+	_yieldThread();
 }
 
 void killThread()
@@ -149,20 +149,20 @@ void decreaseQuantum()
 
 void block(queueADT queue)
 {
-  blockThread(current->t);
-  enqueue(queue, current);
+	blockThread(current->t);
+	enqueue(queue, current);
 }
 
 void unblock(queueADT queue)
 {
 	nodeList *node = dequeue(queue);
-	if(node != NULL)
+	if (node != NULL)
 	{
-		if(isThreadDeleted(node->t))
+		if (isThreadDeleted(node->t))
 		{
 			unblock(queue);
 		}
-  
+
 		unblockThread(current->t);
 		addThread(current->t);
 	}
