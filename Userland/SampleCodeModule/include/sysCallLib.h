@@ -47,5 +47,6 @@ void sysCreatePipeMutex();
 void sysClosePipeMutex();
 void sysWait(int pid);
 void sysCreateThread(int foreground, void * function, int argc, char** argv);
+void sysRemoveThreadFromProcess(int tid);
 
 #endif

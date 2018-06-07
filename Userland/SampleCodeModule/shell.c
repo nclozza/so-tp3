@@ -113,7 +113,6 @@ int callFunction(char *buffer)
 
 	int words;
 	char **argv;
-	int commandPid;
 
 	int foreground = 1;
 	if (*buffer == '&')
@@ -128,21 +127,23 @@ int callFunction(char *buffer)
 	{
 		if (strcmp(argv[0], commands[i].name) == 0)
 		{
-			commandPid = execProcess(commands[i].function, words, argv, commands[i].name, foreground);
+			execProcess(commands[i].function, words, argv, commands[i].name, foreground);
 			valid = 1;
-			sysWait(commandPid);
 		}
 	}
 
 	if (valid == 0)
+	{
+		sysPrintString(argv[0], CB, CG, CR);
 		sysPrintString("Wrong input\n", CB, CG, CR);
+	}
 
 	return 1;
 }
 
 void parseParams(char *command, int *argc, char ***argv)
-{
-	char buffer[BUFFERSIZE];
+{	
+	char buffer[BUFFERSIZE];		
 	int count = 0, size = 0, i = 0, j = 0;
 	do
 	{

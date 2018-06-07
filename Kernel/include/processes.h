@@ -62,4 +62,8 @@ threadADT getThread(process* p, int tid);
 
 int deleteThisProcess(int pid);
 
+int getAndIncreaseThreadCount(process* p);
+
+void addToProcess(threadADT t, int pid, int tid);
+
 #endif

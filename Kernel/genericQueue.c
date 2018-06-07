@@ -1,5 +1,5 @@
 #include "./genericQueue.h"
-#include "pageallocator.h"
+#include "memoryAllocator.h"
 #include <stdlib.h>
 
 typedef struct node
@@ -93,9 +93,10 @@ queueElement dequeue(queueADT queue)
   return element;
 }
 
-void destroyQueue(queueADT q) {
-  while(!queueIsEmpty(q))
+void destroyQueue(queueADT q)
+{
+  while (!queueIsEmpty(q))
     dequeue(q);
 
-  storePage((uint64_t) q);
+  free((void *)q);
 }

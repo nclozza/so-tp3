@@ -258,3 +258,8 @@ void sysCreateThread(int foreground, void * function, int argc, char** argv)
 {
   sysCall(51,foreground, (uint64_t)function, argc, (uint64_t)argv,0);
 }
+
+void sysRemoveThreadFromProcess(int tid)
+{
+  sysCall(52,tid,0,0,0,0);
+}

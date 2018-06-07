@@ -2,9 +2,9 @@
 #include "defs.h"
 #include "lib.h"
 #include "init.h"
-#include "pageallocator.h"
+#include "memoryAllocator.h"
 #include "mutex.h"
-#include "memorymanager.h"
+#include "memoryManager.h"
 #include "scheduler.h"
 #include "videoDriver.h"
 
@@ -91,6 +91,7 @@ void setNullAllThreads(process *process)
 
 int removeProcess(process *p)
 {
+
   if (p != NULL)
   {
     processesNumber--;
@@ -102,7 +103,7 @@ int removeProcess(process *p)
       if(removeThread(p->threads[i]) == 0)
         x++;
     }
-
+    free((void *)p->threads);
     free((void *)p);
     return 0;
   }
@@ -180,30 +181,37 @@ void printPIDS()
     printString("Name: ", 0, 155, 255);
     printString(processesTable[i]->name, 0, 155, 255);
     printString("\n", 0, 155, 255);
-
-    printString("Status: ", 0, 155, 255);
-    char printStatus = processesTable[i]->status;
-    if (printStatus == RUNNING)
+    printString("Threads: \n", 0, 155, 255);
+    for(int j = 0; j < processesTable[i]->threadCount; j++)
     {
-      printString("Running", 0, 155, 255);
+      printString("    TID: ", 0, 155, 255);
+      printInt(j,0,155,255);
+      printString("\n",0,155,255);
+      printString("    Status: ",0,155,255);
+      char printStatus = getThreadStatus(processesTable[i]->threads[j]);
+      if (printStatus == RUNNING)
+      {
+        printString("Running", 0, 155, 255);
+      }
+      else if (printStatus == READY)
+      {
+        printString("Ready", 0, 155, 255);
+      }
+      else if (printStatus == BLOCKED)
+      {
+        printString("Blocked", 0, 155, 255);
+      }
+      else if (printStatus == DELETE)
+      {
+        printString("Awaiting Deletion", 0, 155, 255);
+      }
+      else
+      {
+        printString("Error", 0, 155, 255);
+      }
+      printString("\n", 0, 155, 255);      
     }
-    else if (printStatus == READY)
-    {
-      printString("Ready", 0, 155, 255);
-    }
-    else if (printStatus == BLOCKED)
-    {
-      printString("Blocked", 0, 155, 255);
-    }
-    else if (printStatus == DELETE)
-    {
-      printString("Awaiting Deletion", 0, 155, 255);
-    }
-    else
-    {
-      printString("Error", 0, 155, 255);
-    }
-    printString("\n", 0, 155, 255);
+    
 
     printString("Data Page: ", 0, 155, 255);
     printInt((uint64_t)processesTable[i]->dataPage, 0, 155, 255);
@@ -234,7 +242,9 @@ void removeThreadFromProcess(process* p, int tid)
 threadADT getThread(process* p, int tid)
 { 
   if(p!=NULL)
+  {
     return p->threads[tid];
+  }
   return NULL;
 }
 
@@ -243,12 +253,7 @@ int deleteThisProcess(int pid)
 {
   if (pid != 0 && pid != 1)
   {
-    process *p = getProcessByPid(pid);
-
-    for(int i = 0, x = 0; i < MAX_THREADS && x < p->threadCount; i++)
-    {
-      deleteThread(p->threads[i]);
-    }
+    return removeProcess(getProcessByPid(pid));
   }
 
   return 0;
@@ -258,4 +263,23 @@ int deleteThisProcess(int pid)
 uint64_t getProcessThreadCount(int pid)
 {
   return processesTable[pid]->threadCount;
+}
+
+int getAndIncreaseThreadCount(process* p)
+{
+  if(p!= NULL)
+  {
+    int n = p->threadCount;
+    p->threadCount++;
+    return n;
+  }  
+  return -1;
+}
+
+void addToProcess(threadADT t, int pid, int tid)
+{
+  if(processesTable[pid] != NULL)
+  {
+    processesTable[pid]->threads[tid] = t;
+  }
 }

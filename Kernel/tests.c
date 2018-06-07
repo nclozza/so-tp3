@@ -1,4 +1,4 @@
-#include "pageAllocatorTest.h"
+#include "memoryAllocatorTest.h"
 #include "semaphoreTests.h"
 #include "mutexTests.h"
 #include "videoDriver.h"
@@ -10,9 +10,9 @@
 void runTests()
 {
     printString("Running tests...\n", 128, 128, 128);
-     runPageAllocatorTests();
-	runSemaphoreTests();
-	runMutexTests();
+    runPageAllocatorTests();
+    runSemaphoreTests();
+    runMutexTests();
     runGenericQueueTests();
     runMessageQueueTests();
     runSchedulerTests();
