@@ -12,8 +12,8 @@ int countDigits(int num);
 void copy(char *copy, char *original, int len);
 int subStrleng(const char *s, const char c);
 
-void checkIsNotNull(void* value);
-void checkIsNull(void* value);
+void checkIsNotNull(void *value);
+void checkIsNull(void *value);
 void checkAreEqual(uint64_t value1, uint64_t value2);
 void checkAreNotEqual(uint64_t value1, uint64_t value2);
 void checkIsNotZero(int value);
@@ -23,6 +23,7 @@ void ok();
 void fail();
 int rand();
 void strcat(char *d, const char *s);
+void strcpy(char *d, const char *s);
 int closeMessage(uint64_t arg1, uint64_t id);
 
 #endif

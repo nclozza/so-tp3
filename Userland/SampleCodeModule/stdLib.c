@@ -54,7 +54,6 @@ void reset(char *string, int size)
   }
 }
 
-
 void copy(char *copy, char *original, int len)
 {
   for (int i = 0; i < len; i++)
@@ -79,7 +78,6 @@ int strleng(const char *s)
 {
   return subStrleng(s, '\0');
 }
-
 
 int countDigits(int num)
 {
@@ -187,12 +185,23 @@ int rand()
   return (unsigned int)(next / 65536) % 32768;
 }
 
-
 void strcat(char *d, const char *s)
 {
-    int i,j;
-    for (i = 0; d[i] != '\0'; i++);
-    for (j = 0; s[j] != '\0'; j++)
-        d[i+j] = s[j];
-    d[i+j] = '\0';
+  int i, j;
+  for (i = 0; d[i] != '\0'; i++)
+    ;
+  for (j = 0; s[j] != '\0'; j++)
+    d[i + j] = s[j];
+  d[i + j] = '\0';
+}
+
+void strcpy(char *d, const char *s)
+{
+  while (*s != '\0')
+  {
+    *d = *s;
+    d++;
+    s++;
+  }
+  *d = '\0';
 }
