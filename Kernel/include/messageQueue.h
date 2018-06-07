@@ -3,7 +3,7 @@
 
 #include "lib.h"
 #include "genericQueue.h"
-#include "memorymanager.h"
+#include "memoryManager.h"
 #include "defs.h"
 #include "scheduler.h"
 

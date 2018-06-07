@@ -11,6 +11,9 @@
 #define REMOVE_PRODUCER 'o'
 #define REMOVE_CONSUMER 'x'
 #define QUIT 'q'
+#define PS 'l'
+
+#include <stdint.h>
 
 void runProdCons();
 void producer();
@@ -18,7 +21,7 @@ void consumer();
 void putItemIntoBuffer();
 void removeItemFromBuffer();
 void closeSemaphoresAndMutexes();
-void removeLastProducer(int *prodc, int *producers);
-void removeLastConsumer(int *consc, int *consumers);
+void removeLastProducer(int *prodc);
+void removeLastConsumer(int *consc);
 
 #endif

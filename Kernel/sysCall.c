@@ -3,12 +3,13 @@
 #include "videoDriver.h"
 #include "time.h"
 #include "keyboardDriver.h"
-#include "memorymanager.h"
+#include "memoryManager.h"
 #include "mutex.h"
 #include "semaphore.h"
 #include "messageQueue.h"
 #include "scheduler.h"
-#include "pageallocator.h"
+#include "memoryAllocator.h"
+#include "pipes.h"
 
 #define ERROR 1
 #define SUCCESS 0
@@ -23,12 +24,13 @@ uint64_t mallocMemory(uint64_t size)
 
 void freeMemory(uint64_t page)
 {
-  //remove process from scheduler
   free((void *)page);
 }
+
 void setForeground(int pid)
 {
-  setProcessForeground(pid);
+  process *p = getCurrentProcess();
+  setThreadForeground(getThread(p, 0));
 }
 uint64_t sysCallHandler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
 {
@@ -88,12 +90,12 @@ uint64_t sysCallHandler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, 
   case 22:
     return closeMessage((char *)rsi, (int)rdx);
   case 23:
-    return runProcess(createProcess(rsi, rdx, rcx, (char *)r8));
+    return runThread(getThread(createProcess(rsi, rdx, rcx, r8, (char *)r9), 0));
   case 24:
     setForeground((int)rsi);
     return SUCCESS;
   case 25:
-    killProcess();
+    killThread();
     return SUCCESS;
   case 26:
     return getProcessPpid(getCurrentProcess());
@@ -104,14 +106,46 @@ uint64_t sysCallHandler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, 
     exitShell();
     return SUCCESS;
   case 29:
-    return getAvailablePage();
+    return (uint64_t)malloc(PAGE_SIZE);
   case 30:
-    printBlockedProcessesList();
+    printBlockedThreadsList();
     return SUCCESS;
   case 31:
-    return deleteThisProcess((int) rsi);
+    return deleteThisProcess((int)rsi);
   case 32:
     whileTrue();
+    return SUCCESS;
+  case 33:
+    return pipeOpen((char *)rsi);
+  case 34:
+    return pipeClose((int)rsi);
+  case 35:
+    return pipeWrite((int)rsi, (const void *)rdx, (int)rcx);
+  case 36:
+    return pipeRead((int)rsi, (void *)rdx, (int)rcx);
+  case 37:
+    createPipeMutex();
+    return SUCCESS;
+  case 38:
+    closePipeMutex();
+    return SUCCESS;
+  case 39:
+    setPipeState();
+    return SUCCESS;
+  case 40:
+    clearPipeState();
+    return SUCCESS;
+  case 41:
+    setID((int)rsi);
+    return SUCCESS;
+  case 50:
+    putThreadOnWait(getCurrentThread(), getThread(getProcessByPid((int)rsi), 0));
+    yieldThread();
+    return SUCCESS;
+  case 51:
+    return runThread(createThread(getProcessPid(getCurrentProcess()), rsi, rdx, rcx, (char **)r8, getAndIncreaseThreadCount(getCurrentProcess())));
+  case 52:
+    removeThreadFromProcess(getCurrentProcess(), (int)rsi);
     return SUCCESS;
   }
   return ERROR;

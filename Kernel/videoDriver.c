@@ -1,8 +1,10 @@
+#include "scheduler.h"
 #include <stdint.h>
 #include "lib.h"
 #include "videoDriver.h"
 #include "font.h"
 #include "processes.h"
+#include "pipes.h"
 
 static unsigned char **video_start = (unsigned char **)0x0005C28;
 static unsigned int current_x = 0;
@@ -68,50 +70,58 @@ void paintPixel(int x, int y, char B, char G, char R)
 
 void writeChar(char c, int B, int G, int R)
 {
-	
-	if (isProcessRunningInForeground() == 0)
+
+	if (getCurrentThread() != NULL && !isThreadForeground(getCurrentThread()))
 	{
 		return;
 	}
 
-	checkLine();
-	if (c < 31)
+	if (getPipeState())
 	{
-		if (c == '\n')
-		{
-			newLine();
-			return;
-		}
-		if (c == 8)
-		{ //BACKSPACE
-			backSpace();
-			return;
-		}
+		pipeWrite(getID(), &c, 1);
 	}
 	else
 	{
-		unsigned char *bitmap = pixel_map(c);
-		unsigned char bitmap_aux;
-		int x_counter;
-		int y_counter;
 
-		for (y_counter = 0; y_counter < 16; y_counter++)
+		checkLine();
+		if (c < 31)
 		{
-			for (x_counter = 0; x_counter < 8; x_counter++)
+			if (c == '\n')
 			{
-
-				bitmap_aux = bitmap[y_counter];
-				bitmap_aux >>= 8 - x_counter;
-
-				if (bitmap_aux % 2 == 1)
-					paintPixel(current_x + x_counter, current_y + y_counter, B, G, R);
-				else
-				{
-					paintPixel(current_x + x_counter, current_y + y_counter, BG_B, BG_G, BG_R);
-				}
+				newLine();
+				return;
+			}
+			if (c == 8)
+			{ //BACKSPACE
+				backSpace();
+				return;
 			}
 		}
-		current_x += 8;
+		else
+		{
+			unsigned char *bitmap = pixel_map(c);
+			unsigned char bitmap_aux;
+			int x_counter;
+			int y_counter;
+
+			for (y_counter = 0; y_counter < 16; y_counter++)
+			{
+				for (x_counter = 0; x_counter < 8; x_counter++)
+				{
+
+					bitmap_aux = bitmap[y_counter];
+					bitmap_aux >>= 8 - x_counter;
+
+					if (bitmap_aux % 2 == 1)
+						paintPixel(current_x + x_counter, current_y + y_counter, B, G, R);
+					else
+					{
+						paintPixel(current_x + x_counter, current_y + y_counter, BG_B, BG_G, BG_R);
+					}
+				}
+			}
+			current_x += 8;
+		}
 	}
 }
 void backSpace()

@@ -172,15 +172,15 @@ int sysCloseMessage(uint64_t arg1, uint64_t id)
   return (int)sysCall(22, arg1, id, 0, 0, 0);
 }
 
-int sysExec(void *function, int argc, char **argv, char *name)
+int sysExec(void *function, int foreground, int argc, char **argv, char *name)
 {
-  return (uint64_t)sysCall(23, (uint64_t)function, argc, (uint64_t)argv, (uint64_t)name, 0);
+  return (uint64_t)sysCall(23, (uint64_t)function, foreground, argc, (uint64_t)argv, (uint64_t)name);
 }
 void sysSetForeground(int pid)
 {
   sysCall(24, (uint64_t)pid, 0, 0, 0, 0);
 }
-void sysEndProcess()
+void sysEndThread()
 {
   sysCall(25, 0, 0, 0, 0, 0);
 }
@@ -204,12 +204,12 @@ uint64_t sysGetPage()
   return sysCall(29, 0, 0, 0, 0, 0);
 }
 
-void sysPrintBlockedProcesses()
+void sysPrintBlockedThreads()
 {
   sysCall(30, 0, 0, 0, 0, 0);
 }
 
-int sysDeleteThisProcess(int pid)
+int sysDeleteThisThread(int pid)
 {
   return sysCall(31, (uint64_t)pid, 0, 0, 0, 0);
 }
@@ -217,4 +217,64 @@ int sysDeleteThisProcess(int pid)
 void sysWhileTrue()
 {
   sysCall(32, 0, 0, 0, 0, 0);
+}
+
+int sysPipeOpen(char *name)
+{
+  return sysCall(33, (uint64_t)name, 0, 0, 0, 0);
+}
+
+int sysPipeClose(int id)
+{
+  return sysCall(34, (uint64_t)id, 0, 0, 0, 0);
+}
+
+int sysPipeWrite(int id, const void *buf, int bytes)
+{
+  return sysCall(35, (uint64_t)id, (uint64_t)buf, (uint64_t)bytes, 0, 0);
+}
+
+int sysPipeRead(int id, void *buf, int bytes)
+{
+  return sysCall(36, (uint64_t)id, (uint64_t)buf, (uint64_t)bytes, 0, 0);
+}
+
+void sysCreatePipeMutex()
+{
+  sysCall(37, 0, 0, 0, 0, 0);
+}
+
+void sysClosePipeMutex()
+{
+  sysCall(38, 0, 0, 0, 0, 0);
+}
+
+void sysSetPipeState()
+{
+  sysCall(39, 0, 0, 0, 0, 0);
+}
+
+void sysClearPipeState()
+{
+  sysCall(40, 0, 0, 0, 0, 0);
+}
+
+void sysSetID(int id)
+{
+  sysCall(41, (uint64_t)id, 0, 0, 0, 0);
+}
+
+void sysWait(int pid)
+{
+  sysCall(50, (uint64_t)pid, 0, 0, 0, 0);
+}
+
+void sysCreateThread(int foreground, void *function, int argc, char **argv)
+{
+  sysCall(51, foreground, (uint64_t)function, argc, (uint64_t)argv, 0);
+}
+
+void sysRemoveThreadFromProcess(int tid)
+{
+  sysCall(52, tid, 0, 0, 0, 0);
 }

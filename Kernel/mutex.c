@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include "mutex.h"
-#include "memorymanager.h"
+#include "memoryManager.h"
 #include "lib.h"
 #include "processes.h"
 #include "scheduler.h"
@@ -15,17 +15,20 @@ typedef struct mutex_t
 	char* name;
 	int value;
 	int id;	
-	process* blockedProcesses[MAX_PROCESSES];
+	threadADT blockedThreads[MAX_THREADS];
 } mutex_t;
 
 mutex_t *mutexInit(char *name)
-{
+{	
 	int i;
 	for (i = 0; i < numberOfMutexes; i++)
-	{
-		if (strcmpKernel(name, mutex[i]->name) == 0)
+	{		
+		if(mutex[i] != NULL)
 		{
-			return mutex[i];
+			if (strcmpKernel(name, mutex[i]->name) == 0)
+			{			
+				return mutex[i];
+			}
 		}
 	}
 	mutexADT newMutex = (mutexADT)malloc(sizeof(mutex_t));
@@ -33,9 +36,9 @@ mutex_t *mutexInit(char *name)
 	strcpyKernel(newMutex->name, name);
 	newMutex->value = 1;
 	newMutex->id = id;
-	for(int i = 0; i < MAX_PROCESSES; i++)
+	for(int i = 0; i < MAX_THREADS; i++)
 	{
-		newMutex->blockedProcesses[i] = NULL;
+		newMutex->blockedThreads[i] = NULL;
 	}
 
 	id++;
@@ -49,10 +52,10 @@ int mutexLock(mutex_t *mut)
 {
 	while(mut->value==0)
 	{
-		process *p = getCurrentProcess();
-		blockProcess(p);		
-		mut->blockedProcesses[getProcessPid(p)]= p;		
-		yieldProcess();
+		threadADT t = getCurrentThread();
+		blockThread(t);		
+		mut->blockedThreads[getThreadPid(t)]= t;		
+		yieldThread();
 	}
 	mut->value = 0;
 	return 0;
@@ -60,8 +63,8 @@ int mutexLock(mutex_t *mut)
 
 int mutexUnlock(mutex_t *mut)
 {
-	for(int i = 0; i < MAX_PROCESSES; i++){		
-		unblockProcess(mut->blockedProcesses[i]);
+	for(int i = 0; i < MAX_THREADS; i++){		
+		unblockThread(mut->blockedThreads[i]);
 	}
 	mut->value = 1;
 	return mut->value;

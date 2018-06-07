@@ -1,28 +1,34 @@
-#include "memorymanager.h"
+#include "memoryManager.h"
 #include "scheduler.h"
 #include "dirs.h"
 #include "videoDriver.h"
 #include "mutex.h"
 #include "processes.h"
+#include "thread.h"
 #include "defs.h"
 #include "interrupts.h"
 
-static void addProcess(process *p);
+static void addThread(threadADT t);
 static void setNextCurrent();
 
 /* Procesos actualmente bloqueados */
-static blockedProcess *firstBlockedProcess;
+static blockedThread *firstBlockedThread;
 
 /* Proceso actualmente corriendo */
 static nodeList *current = NULL;
 static nodeList *prev = NULL;
 
-process *getCurrentProcess()
+threadADT getCurrentThread()
 {
-	return current->p;
+	return current->t;
 }
 
-uint64_t nextProcess(uint64_t current_rsp)
+process *getCurrentProcess()
+{
+	return getProcessByPid(getThreadPid(current->t));
+}
+
+uint64_t nextThread(uint64_t current_rsp)
 {
 	if (current == NULL)
 	{
@@ -36,35 +42,35 @@ uint64_t nextProcess(uint64_t current_rsp)
 
 	current->quantum = QUANTUM;
 
-	setProcessRsp(current->p, current_rsp);
+	setThreadRsp(current->t, current_rsp);
 
 	prev = current;
 	current = current->next;
 
 	setNextCurrent();
 
-	return getProcessRsp(current->p);
+	return getThreadRsp(current->t);
 }
 
-uint64_t runProcess(process *new_process)
+uint64_t runThread(threadADT new_thread)
 {
 	int pid;
 
-	addProcess(new_process);
+	addThread(new_thread);
 
-	pid = getProcessPid(new_process);
+	pid = getThreadPid(new_thread);
 
 	if (pid == 0)
-		_changeProcess(getProcessRsp(current->p));
+		_changeThread(getThreadRsp(current->t));
 
 	return pid;
 }
 
-static void addProcess(process *p)
+static void addThread(threadADT t)
 {
 	nodeList *new_node = (nodeList *)malloc(sizeof(*new_node));
 
-	new_node->p = p;
+	new_node->t = t;
 	new_node->quantum = QUANTUM;
 
 	if (current == NULL)
@@ -80,35 +86,35 @@ static void addProcess(process *p)
 	}
 }
 
-void yieldProcess()	
-{	
+void yieldThread()
+{
 	current->next->quantum += 1;
-	current->quantum = 0;	
-	_yieldProcess();	
+	current->quantum = 0;
+	_yieldThread();
 }
 
-void killProcess()
+void killThread()
 {
 	nodeList *n = current;
-	removeProcess(n->p);
+	removeThread(n->t);
 	prev->next = current->next;
 	current = current->next;
 	setNextCurrent();
 	free((void *)n);
 	increaseQuantum();
-	_changeProcess(getProcessRsp(current->p));
+	_changeThread(getThreadRsp(current->t));
 }
 
 static void setNextCurrent()
 {
-	while (isProcessBlocked(current->p) || isProcessDeleted(current->p))
+	while (isThreadBlocked(current->t) || isThreadDeleted(current->t))
 	{
 		nodeList *next = current->next;
 
-		if (isProcessDeleted(current->p))
+		if (isThreadDeleted(current->t))
 		{
 			prev->next = next;
-			removeProcess(current->p);
+			removeThread(current->t);
 			free((void *)current);
 		}
 		else
@@ -118,13 +124,14 @@ static void setNextCurrent()
 	}
 }
 
-void printBlockedProcessesList()
+void printBlockedThreadsList()
 {
-	blockedProcess *temp = firstBlockedProcess;
+	blockedThread *temp = firstBlockedThread;
 	while (temp != NULL)
 	{
+		int pid = getThreadPid(temp->t);
 		printString("PID: ", 0, 155, 255);
-		printInt(temp->process->pid, 0, 155, 255);
+		printInt(pid, 0, 155, 255);
 		printString("\n", 0, 155, 255);
 		temp = temp->next;
 	}
@@ -142,21 +149,21 @@ void decreaseQuantum()
 
 void block(queueADT queue)
 {
-  blockProcess(current->p);
-  enqueue(queue, current);
+	blockThread(current->t);
+	enqueue(queue, current);
 }
 
 void unblock(queueADT queue)
 {
 	nodeList *node = dequeue(queue);
-	if(node != NULL)
+	if (node != NULL)
 	{
-		if(node->p->status == DELETE)
+		if (isThreadDeleted(node->t))
 		{
 			unblock(queue);
 		}
-  
-		unblockProcess(current->p);
-		addProcess(current->p);
+
+		unblockThread(current->t);
+		addThread(current->t);
 	}
 }

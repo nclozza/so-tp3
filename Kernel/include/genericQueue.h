@@ -17,4 +17,6 @@ queueElement dequeue(queueADT queue);
 
 queueElement peek(queueADT queue);
 
+void destroyQueue(queueADT q);
+
 #endif

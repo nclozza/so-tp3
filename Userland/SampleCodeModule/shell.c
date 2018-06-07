@@ -21,18 +21,15 @@ static command commands[] = {
 		{"echo\0", echo},
 		{"echo\n", echo},
 		{"displayTime\n", displayTime},
-		{"setTimeZone\n", setTimeZone},
-		{"setFontColor\n", setFontColor},
+		{"displayTime\0", displayTime},
 		{"clear\n", clear},
-		{"calculate\0", calculate},
-		{"calculate\n", calculate},
-		{"plot\0", plot},
-		{"plot\n", plot},
 		{"exit\n", exit},
 		{"opcode\0", opcode},
 		{"opcode\n", opcode},
 		{"prodcons\0", prodcons},
 		{"prodcons\n", prodcons},
+		{"prodconsPipes\0", prodconsPipes},
+		{"prodconsPipes\n", prodconsPipes},
 		{"ps\0", ps},
 		{"ps\n", ps},
 		{"print\n", printName},
@@ -120,19 +117,26 @@ int callFunction(char *buffer)
 	}
 
 	parseParams(buffer, &words, &argv);
-	int i, valid = 0;
-	for (i = 0; i < CMD_SIZE && valid == 0; i++)
+	int pipe = checkPipe(&words, &argv);
+
+	if (pipe == 0)
 	{
-		if (strcmp(argv[0], commands[i].name) == 0)
+		int i, valid = 0;
+		for (i = 0; i < CMD_SIZE && valid == 0; i++)
 		{
-			execProcess(commands[i].function, words, argv, commands[i].name, foreground);
-			valid = 1;
+			if (strcmp(argv[0], commands[i].name) == 0)
+			{
+				execProcess(commands[i].function, words, argv, commands[i].name, foreground);
+				valid = 1;
+			}
+		}
+
+		if (valid == 0)
+		{
+			sysPrintString(argv[0], CB, CG, CR);
+			sysPrintString("Wrong input\n", CB, CG, CR);
 		}
 	}
-
-	if (valid == 0)
-		sysPrintString("Wrong input\n", CB, CG, CR);
-
 	return 1;
 }
 
@@ -166,4 +170,74 @@ void parseParams(char *command, int *argc, char ***argv)
 	} while (command[i++] != 0);
 
 	(*argc) = count;
+}
+
+int checkPipe(int *argc, char ***argv)
+{
+	int count;
+	int id;
+	int length;
+	for (count = 0; count < *argc; count++)
+	{
+		if (strcmp((*argv)[count], "/") == 0)
+		{
+			int i, valid = 0;
+			for (i = 0; i < CMD_SIZE && valid == 0; i++)
+			{
+				length = strleng((*argv)[1]);
+
+				if (strcmp((*argv)[0], commands[i].name) == 0)
+				{
+					sysCreatePipeMutex();
+					id = sysPipeOpen("PIPE");
+					sysSetID(id);
+
+					sysSetPipeState();
+					execProcess(commands[i].function, count, *argv, commands[i].name, 1);
+					valid = 1;
+					sysClearPipeState();
+				}
+			}
+
+			if (valid == 0)
+			{
+				sysPrintString((*argv)[0], CB, CG, CR);
+				sysPrintString("Wrong input\n", CB, CG, CR);
+				return 1;
+			}
+
+			valid = 0;
+			for (i = 0; i < CMD_SIZE && valid == 0; i++)
+			{
+				if (strcmp((*argv)[count + 1], commands[i].name) == 0)
+				{
+					char **buffer = (char **)sysMalloc(1);
+					buffer[1] = (char *)sysMalloc(length);
+					sysPipeRead(id, buffer[1], length);
+
+					buffer[1][length] = '\n';
+					buffer[1][length + 1] = '\0';
+
+					execProcess(commands[i].function, 2, buffer, commands[i].name, 1);
+					valid = 1;
+
+					sysFree((uint64_t)buffer[1]);
+					sysFree((uint64_t)buffer);
+
+					sysPipeClose(id);
+					sysClosePipeMutex();
+				}
+			}
+
+			if (valid == 0)
+			{
+				sysPrintString((*argv)[count + 1], CB, CG, CR);
+				sysPrintString("\nWrong input\n", CB, CG, CR);
+			}
+
+			return 1;
+		}
+	}
+
+	return 0;
 }

@@ -1,16 +1,16 @@
 #include "processes.h"
 #include "defs.h"
 #include "lib.h"
-#include "pageallocator.h"
+#include "init.h"
+#include "memoryAllocator.h"
 #include "mutex.h"
-#include "memorymanager.h"
+#include "memoryManager.h"
 #include "scheduler.h"
 #include "videoDriver.h"
 
 static void freeDataPages(process *p);
 
 static process *processesTable[MAX_PROCESSES] = {NULL};
-static process *foreground = NULL;
 
 static uint64_t processesNumber = 0;
 
@@ -32,15 +32,15 @@ int insertProcess(process *p)
   return -1;
 }
 
-process *createProcess(uint64_t newProcessRIP, uint64_t argc, uint64_t argv, const char *name)
+process *createProcess(uint64_t newProcessRIP, int foreground, uint64_t argc, uint64_t argv, const char *name)
 {
   process *newProcess = (process *)malloc(sizeof(*newProcess));
   strcpyKernel(newProcess->name, name);
-  newProcess->stackPage = getStackPage();
-  newProcess->status = READY;
-  newProcess->rsp = createNewProcessStack(newProcessRIP, newProcess->stackPage, argc, argv);
   setNullAllProcessPages(newProcess);
   insertProcess(newProcess);
+  setNullAllThreads(newProcess);
+  newProcess->threads[0] = createThread(newProcess->pid, foreground, newProcessRIP, argc, (char **)argv, 0);
+  newProcess->threadCount = 1;
 
   if (newProcess->pid != 0)
   {
@@ -48,8 +48,6 @@ process *createProcess(uint64_t newProcessRIP, uint64_t argc, uint64_t argv, con
   }
   else
   {
-    /* Pone en foreground al primer proceso */
-    foreground = newProcess;
     newProcess->ppid = 0;
   }
 
@@ -58,7 +56,7 @@ process *createProcess(uint64_t newProcessRIP, uint64_t argc, uint64_t argv, con
 
 process *getProcessByPid(uint64_t pid)
 {
-  if (pid < MAX_PROCESSES && processesTable[pid] != NULL && !isProcessDeleted(processesTable[pid]))
+  if (pid < MAX_PROCESSES && processesTable[pid] != NULL)
   {
     return processesTable[pid];
   }
@@ -78,18 +76,37 @@ void setNullAllProcessPages(process *process)
   process->dataPageCount = 0;
 }
 
-void removeProcess(process *p)
+void setNullAllThreads(process *process)
 {
+  int i;
+
+  for (i = 0; i < MAX_THREADS; i++)
+  {
+    process->threads[i] = NULL;
+  }
+
+  process->threadCount = 0;
+}
+
+int removeProcess(process *p)
+{
+
   if (p != NULL)
   {
     processesNumber--;
     freeDataPages(p);
-    if (foreground == p)
-      setProcessForeground(processesTable[p->ppid]->pid);
     processesTable[p->pid] = NULL;
-    free((void *)p->stackPage);
+
+    for (int i = 0, x = 0; i < MAX_THREADS && x < p->threadCount; i++)
+    {
+      if (removeThread(p->threads[i]) == 0)
+        x++;
+    }
+    free((void *)p->threads);
     free((void *)p);
+    return 0;
   }
+  return -1;
 }
 
 /* Libera las páginas de datos usadas por el proceso. */
@@ -127,43 +144,6 @@ void exitShell()
   shell->status = DELETE;
 }
 
-int deleteThisProcess(int pid)
-{
-  if (pid != 0 && pid != 1)
-  {
-    return deleteProcess(getProcessByPid(pid));
-  }
-  return 0;
-}
-
-int deleteProcess(process *p)
-{
-  if (p != NULL && p->pid != 1 && p->pid != 0)
-    p->status = DELETE;
-
-  return p != NULL;
-}
-
-int isProcessDeleted(process *p)
-{
-  if (p != NULL)
-    return p->status == DELETE;
-  return 0;
-}
-
-void setProcessRsp(process *p, uint64_t rsp)
-{
-  if (p != NULL)
-    p->rsp = rsp;
-}
-
-uint64_t getProcessRsp(process *p)
-{
-  if (p != NULL)
-    return p->rsp;
-  return -1;
-}
-
 uint64_t getProcessPid(process *p)
 {
   if (p != NULL)
@@ -178,92 +158,9 @@ uint64_t getProcessPpid(process *p)
   return -1;
 }
 
-void blockProcess(process *p)
-{
-  if (p != NULL && p->status != DELETE)
-  {
-    p->status = BLOCKED;
-  }
-}
-
-void unblockProcess(process *p)
-{
-  if (p != NULL && p->status != DELETE)
-    p->status = READY;
-}
-
-int isProcessBlocked(process *p)
-{
-  if (p != NULL)
-    return p->status == BLOCKED;
-  return 1;
-}
-
-void setProcessForeground(int pid)
-{
-  process *p = getProcessByPid(pid);
-  if (p != NULL && p->pid != 0)
-  {
-    foreground = p;
-  }
-}
-
-int isProcessRunningInForeground()
-{
-  process *currentProcessRunning = getCurrentProcess();
-  if (currentProcessRunning != NULL && foreground != NULL)
-  {
-    return currentProcessRunning->pid == foreground->pid;
-  }
-  else if ((currentProcessRunning == NULL) && (foreground == NULL))
-  {
-    return 1;
-  }
-  return 0;
-}
-
-process *getProcessForeground()
-{
-  return foreground;
-}
-
 uint64_t getProcessesNumber()
 {
   return processesNumber;
-}
-
-/* Llena el stack para que sea hookeado al cargar un nuevo proceso
-** https://bitbucket.org/RowDaBoat/wyrm */
-
-uint64_t createNewProcessStack(uint64_t rip, uint64_t stackPage, uint64_t argc, uint64_t argv)
-{
-  stackFrame *newStackFrame = (stackFrame *)stackPage - 1;
-
-  newStackFrame->gs = 0x001;
-  newStackFrame->fs = 0x002;
-  newStackFrame->r15 = 0x003;
-  newStackFrame->r14 = 0x004;
-  newStackFrame->r13 = 0x005;
-  newStackFrame->r12 = 0x006;
-  newStackFrame->r11 = 0x007;
-  newStackFrame->r10 = 0x008;
-  newStackFrame->r9 = 0x009;
-  newStackFrame->r8 = 0x00A;
-  newStackFrame->rsi = argv;
-  newStackFrame->rdi = argc;
-  newStackFrame->rbp = 0x00D;
-  newStackFrame->rdx = 0x00E;
-  newStackFrame->rcx = 0x00F;
-  newStackFrame->rbx = 0x010;
-  newStackFrame->rax = 0x011;
-  newStackFrame->rip = rip;
-  newStackFrame->cs = 0x008;
-  newStackFrame->eflags = 0x202;
-  newStackFrame->rsp = (uint64_t) & (newStackFrame->base);
-  newStackFrame->ss = 0x000;
-  newStackFrame->base = 0x000;
-
-  return (uint64_t)&newStackFrame->gs;
 }
 
 void printPIDS()
@@ -271,47 +168,56 @@ void printPIDS()
   int i;
   for (i = 0; i < processesNumber; i++)
   {
-    printString("PID: ", 0, 155, 255);
-    printInt(processesTable[i]->pid, 0, 155, 255);
-    printString("\n", 0, 155, 255);
-
-    printString("PPID: ", 0, 155, 255);
-    printInt(processesTable[i]->ppid, 0, 155, 255);
-    printString("\n", 0, 155, 255);
-
-    printString("Name: ", 0, 155, 255);
-    printString(processesTable[i]->name, 0, 155, 255);
-    printString("\n", 0, 155, 255);
-
-    printString("Status: ", 0, 155, 255);
-    char printStatus = processesTable[i]->status;
-    if (printStatus == RUNNING)
+    if (processesTable[i] != NULL)
     {
-      printString("Running", 0, 155, 255);
-    }
-    else if (printStatus == READY)
-    {
-      printString("Ready", 0, 155, 255);
-    }
-    else if (printStatus == BLOCKED)
-    {
-      printString("Blocked", 0, 155, 255);
-    }
-    else if (printStatus == DELETE)
-    {
-      printString("Awaiting Deletion", 0, 155, 255);
-    }
-    else
-    {
-      printString("Error", 0, 155, 255);
-    }
-    printString("\n", 0, 155, 255);
+      printString("PID: ", 0, 155, 255);
+      printInt(processesTable[i]->pid, 0, 155, 255);
+      printString("\n", 0, 155, 255);
 
-    printString("Data Page: ", 0, 155, 255);
-    printInt((uint64_t)processesTable[i]->dataPage, 0, 155, 255);
-    printString("\n", 0, 155, 255);
+      printString("PPID: ", 0, 155, 255);
+      printInt(processesTable[i]->ppid, 0, 155, 255);
+      printString("\n", 0, 155, 255);
 
-    printString("-------------------------------\n", 0, 155, 255);
+      printString("Name: ", 0, 155, 255);
+      printString(processesTable[i]->name, 0, 155, 255);
+      printString("\n", 0, 155, 255);
+      printString("Threads: \n", 0, 155, 255);
+      for (int j = 0; j < processesTable[i]->threadCount; j++)
+      {
+        printString("    TID: ", 0, 155, 255);
+        printInt(j, 0, 155, 255);
+        printString("\n", 0, 155, 255);
+        printString("    Status: ", 0, 155, 255);
+        char printStatus = getThreadStatus(processesTable[i]->threads[j]);
+        if (printStatus == RUNNING)
+        {
+          printString("Running", 0, 155, 255);
+        }
+        else if (printStatus == READY)
+        {
+          printString("Ready", 0, 155, 255);
+        }
+        else if (printStatus == BLOCKED)
+        {
+          printString("Blocked", 0, 155, 255);
+        }
+        else if (printStatus == DELETE)
+        {
+          printString("Awaiting Deletion", 0, 155, 255);
+        }
+        else
+        {
+          printString("Error", 0, 155, 255);
+        }
+        printString("\n", 0, 155, 255);
+      }
+
+      printString("Data Page: ", 0, 155, 255);
+      printInt((uint64_t)processesTable[i]->dataPage, 0, 155, 255);
+      printString("\n", 0, 155, 255);
+
+      printString("-------------------------------\n", 0, 155, 255);
+    }
   }
 }
 
@@ -320,5 +226,59 @@ void whileTrue()
   while (1)
   {
     _hlt();
+  }
+}
+
+void removeThreadFromProcess(process *p, int tid)
+{
+  if (p == NULL || tid > MAX_THREADS || tid < 0)
+    return;
+  deleteThread(p->threads[tid]);
+  p->threads[tid] = NULL;
+  p->threadCount--;
+  if (p->threadCount == 0)
+    removeProcess(p);
+}
+
+threadADT getThread(process *p, int tid)
+{
+  if (p != NULL)
+  {
+    return p->threads[tid];
+  }
+  return NULL;
+}
+
+int deleteThisProcess(int pid)
+{
+  if (pid != 0 && pid != 1)
+  {
+    return removeProcess(getProcessByPid(pid));
+  }
+
+  return 0;
+}
+
+uint64_t getProcessThreadCount(int pid)
+{
+  return processesTable[pid]->threadCount;
+}
+
+int getAndIncreaseThreadCount(process *p)
+{
+  if (p != NULL)
+  {
+    int n = p->threadCount;
+    p->threadCount++;
+    return n;
+  }
+  return -1;
+}
+
+void addToProcess(threadADT t, int pid, int tid)
+{
+  if (processesTable[pid] != NULL)
+  {
+    processesTable[pid]->threads[tid] = t;
   }
 }

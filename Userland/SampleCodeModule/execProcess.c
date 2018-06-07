@@ -4,13 +4,10 @@
 
 typedef void (*entry_point)(int, char **);
 
-
 int execProcess(void *function, int argc, char **argv, char *name, int foreground)
 {
-	int pid = sysExec(function, argc, argv, name);
-	if (foreground == 1)
-	{
-		sysSetForeground(pid);
-	}	
+	int pid = sysExec(function, foreground, argc, argv, name);
+	if (foreground)
+		sysWait(pid);
 	return pid;
 }
