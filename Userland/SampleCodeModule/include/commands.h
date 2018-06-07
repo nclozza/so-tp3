@@ -1,7 +1,7 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
-#define CMD_SIZE 21
+#define CMD_SIZE 20
 void printName(int argc, char *argv[]);
 void createMutex();
 void createSem();
@@ -16,8 +16,6 @@ void prodconsPipes(int argc, char *argv[]);
 void ps(int argc, char *argv[]);
 void whileTrue();
 void kill(int argc, char *argv[]);
-void echoPIPE(int argc, char *argv[]);
-void printPIPE(int argc, char *argv[]);
 
 typedef struct
 {

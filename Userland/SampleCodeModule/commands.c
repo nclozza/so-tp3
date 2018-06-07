@@ -13,8 +13,6 @@
 static int R = DR;
 static int G = DG;
 static int B = DB;
-static int id = 0;
-static int length = 0;
 
 int timeZone = -3;
 uint64_t m;
@@ -25,7 +23,7 @@ void printName(int argc, char *argv[])
 	if (argc > 1)
 	{
 		// sysSemWait(s);
-		for (int i = 0; i < 100; i++)
+		for (int i = 0; i < 5; i++)
 		{
 			sysMutexDown(m);
 			sysPrintString("I'm printing: ", 0, 155, 255);
@@ -53,7 +51,6 @@ void createSem()
 }
 void help(int argc, char *argv[])
 {
-
 	if (argc > 2)
 		sysEndThread();
 
@@ -123,34 +120,6 @@ void echo(int argc, char *argv[])
 
 	sysPrintString("\n", B, G, R);
 
-	sysEndThread();
-}
-
-void echoPIPE(int argc, char *argv[])
-{
-	sysCreatePipeMutex();
-	id = sysPipeOpen("echoPIPE");
-	length = strleng(argv[1]);
-	sysPipeWrite(id, argv[1], length);
-
-	sysEndThread();
-}
-
-void printPIPE(int argc, char *argv[])
-{
-	sysPrintString("printPIPE\n", 0, 155, 255);
-	char **buffer = (char **)sysMalloc(1);
-	buffer[1] = (char *)sysMalloc(1);
-	sysPipeRead(id, buffer[1], length);
-	buffer[1][length] = '\n';
-
-	printName(2, buffer);
-
-	sysFree((uint64_t)buffer[1]);
-	sysFree((uint64_t)buffer);
-
-	sysPipeClose(id);
-	sysClosePipeMutex();
 	sysEndThread();
 }
 
