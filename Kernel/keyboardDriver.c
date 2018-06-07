@@ -1,5 +1,6 @@
 #include "keyboardDriver.h"
 #include "videoDriver.h"
+#include "pipes.h"
 
 const char keyMap[128] =
     {
@@ -192,6 +193,7 @@ void getChar(char *ch)
     *ch = EOF;
     return;
   }
+
   *ch = circularBuffer[readindex];
   readindex = (readindex + 1) % BUFFERSIZE;
   elements--;

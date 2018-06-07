@@ -11,6 +11,9 @@
 #include "defs.h"
 #include "thread.h"
 
+static int pipeState = 0;
+static int id = 0;
+
 typedef struct thread_t
 {
   int tid;
@@ -125,7 +128,7 @@ static pipe createNewPipe(char *name)
   strcpyKernel(f.name, name);
   f.state = OPEN;
   f.cBuffer = createCircularBuffer();
-  f.pipeMutex = mutexInit(name); // TODO: Ver que nombre pasarle.
+  f.pipeMutex = mutexInit(name);
   f.readQueue = createQueue();
   return f;
 }
@@ -143,8 +146,7 @@ static circularBuffer createCircularBuffer()
 
 static int isOpen(int id)
 {
-  return id < MAX_PIPES && openPipes[id].state == OPEN &&
-         fileIsOpen(getCurrentThread(), id);
+  return id < MAX_PIPES && openPipes[id].state == OPEN;
 }
 
 int pipeWrite(int id, const void *buf, int bytes)
@@ -177,13 +179,13 @@ int pipeWrite(int id, const void *buf, int bytes)
 static int tryRead(readRequest *r)
 {
   if (r->f->cBuffer.bufFull > 0)
-  { // el buffer tenga los bytes que quiero leer
+  {
     r->bytesRead = readCircularBuffer(&r->f->cBuffer, r->buffer, r->bytes);
-    return 1; // lee
+    return 1;
   }
   else
   {
-    return 0; // no lee
+    return 0;
   }
 }
 
@@ -191,9 +193,8 @@ static void sendToReaders(queueADT readQueue)
 {
   while (!queueIsEmpty(readQueue) && tryRead(peek(readQueue)))
   {
-    // manda a los lectores hasta que uno no pueda leer mas
     readRequest *r = dequeue(readQueue);
-    unblockThread(r->readerP); // leyo, entonces lo saca de los que estan esperando leer
+    unblockThread(r->readerP);
   }
 }
 
@@ -220,7 +221,7 @@ int pipeRead(int id, void *buf, int bytes)
 
     mutexLock(f->pipeMutex);
 
-    if (queueIsEmpty(f->readQueue)) // primer reader
+    if (queueIsEmpty(f->readQueue))
       canRead = tryRead(r);
 
     if (!canRead)
@@ -228,14 +229,14 @@ int pipeRead(int id, void *buf, int bytes)
       enqueue(f->readQueue, r);
       mutexUnlock(f->pipeMutex);
       blockThread(r->readerP);
-      yieldThread(); // esta bloqueado
+      yieldThread();
     }
     else
     {
-      mutexUnlock(f->pipeMutex); // TODO: OJO que el tryRead bloquea, puede que nunca se llegue a este unlock
+      mutexUnlock(f->pipeMutex);
     }
 
-    if (!isOpen(id)) // se desbloqueo porque cerraron el pipe;
+    if (!isOpen(id))
       return PIPE_NOT_OPEN_ERROR;
 
     n = r->bytesRead;
@@ -251,7 +252,6 @@ int pipeRead(int id, void *buf, int bytes)
   return PIPE_NOT_OPEN_ERROR;
 }
 
-/* TODO: hacer algo con los fds */
 int pipeClose(int id)
 {
   mutexLock(pipeArrayLock);
@@ -297,8 +297,8 @@ static int writeCircularBuffer(circularBuffer *cBuf, const void *source, int byt
     int firstBytes = BUF_SIZE - aux;
     int secondBytes = writeBytes - firstBytes;
 
-    memcpy(cBuf->buffer + aux, source, firstBytes);         /* Copia hasta el final del buffer */
-    memcpy(cBuf->buffer, source + firstBytes, secondBytes); /* Copia a partir del comienzo del buffer lo que faltaba de source */
+    memcpy(cBuf->buffer + aux, source, firstBytes);
+    memcpy(cBuf->buffer, source + firstBytes, secondBytes);
   }
 
   cBuf->bufFull += writeBytes;
@@ -351,4 +351,29 @@ static void AddPipeInfo(pipeInfo *addInfo, int id)
 {
   strcpyKernel(addInfo->name, openPipes[id].name);
   addInfo->fds = id + FILE_DESCRIPTORS;
+}
+
+void setID(int newID)
+{
+  id = newID;
+}
+
+int getID()
+{
+  return id;
+}
+
+void setPipeState()
+{
+  pipeState = 1;
+}
+
+void clearPipeState()
+{
+  pipeState = 0;
+}
+
+int getPipeState()
+{
+  return pipeState;
 }
