@@ -14,6 +14,7 @@
 #define REMOVE_PRODUCER 'o'
 #define REMOVE_CONSUMER 'x'
 #define QUIT 'q'
+#define PS 'l'
 
 void runProdConsPipes();
 void producerPipes();
@@ -21,7 +22,7 @@ void consumerPipes();
 // putItemIntoBuffer();
 //void removeItemFromBuffer();
 //void closeSemaphoresAndMutexes();
-void removeLastProducerPipes(int *prodc, int *producers);
-void removeLastConsumerPipes(int *consc, int *consumers);
+void removeLastProducerPipes(int *prodc);
+void removeLastConsumerPipes(int *consc);
 
 #endif

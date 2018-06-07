@@ -12,7 +12,7 @@ uint64_t bufferMutex = 0;
 int fullSem = 0;
 int emptySem = 0;
 static int items = 0;
-static int tid = 0;
+static int tid = 1;
 int producers[MAX_PRODUCERS];
 int consumers[MAX_CONSUMERS];
 

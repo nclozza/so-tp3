@@ -233,6 +233,7 @@ void removeThreadFromProcess(process *p, int tid)
 {
   if (p == NULL || tid > MAX_THREADS || tid < 0)
     return;
+  deleteThread(p->threads[tid]);
   p->threads[tid] = NULL;
   p->threadCount--;
   if (p->threadCount == 0)
