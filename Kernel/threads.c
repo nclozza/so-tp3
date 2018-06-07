@@ -6,26 +6,44 @@
 #include "videoDriver.h"
 typedef struct thread_t
 {
-	int tid;
-	int pid;	
-	int status;
-	int foreground;
-	uint64_t rsp;
+  int tid;
+  int pid;
+  int status;
+  int foreground;
+  uint64_t rsp;
   uint64_t stackPage;
-  struct thread_t* waiting;
+  struct thread_t *waiting;
+  uint64_t openFds;
 } thread_t;
-
-threadADT createThread(int pid,int foreground, uint64_t rsp, int argc, char *argv[], int tid){ 	
-	threadADT newTCB =	(threadADT)malloc(sizeof(thread_t)); 	
-	newTCB->tid = tid; 	
-	newTCB->pid = pid; 	
+void aboutThread(threadADT t)
+{
+  printString("\nThread info", 0, 155, 255);
+  printString("\nPID: ", 0, 155, 255);
+  printInt(t->pid, 0, 155, 255);
+  printString("\nTID: ", 0, 155, 255);
+  printInt(t->tid, 0, 155, 255);
+  printString("\nSTATUS: ", 0, 155, 255);
+  printInt(t->status, 0, 155, 255);
+  printString("\nFOREGROUND: ", 0, 155, 255);
+  printInt(t->foreground, 0, 155, 255);
+  printString("\nWAITING THREAD: ", 0, 155, 255);
+  if (t->waiting != NULL)
+    printInt(t->waiting->pid, 0, 155, 255);
+  printString("\n-----------------------\n", 0, 155, 255);
+}
+threadADT createThread(int pid, int foreground, uint64_t rsp, int argc, char *argv[], int tid)
+{
+  threadADT newTCB = (threadADT)malloc(sizeof(thread_t));
+  newTCB->tid = tid;
+  newTCB->pid = pid;
   newTCB->waiting = NULL;
-	newTCB->foreground = foreground;
-	newTCB->status = READY;
+  newTCB->foreground = foreground;
+  newTCB->status = 1;
   newTCB->stackPage = (uint64_t)malloc(MB);
-	newTCB->rsp = createNewThreadStack(rsp, newTCB->stackPage, argc, (uint64_t)argv);	
-	return newTCB; 
-} 
+  newTCB->rsp = createNewThreadStack(rsp, newTCB->stackPage, argc, (uint64_t)argv);
+  addToProcess(newTCB, pid, tid);
+  return newTCB;
+}
 
 /* Llena el stack para que sea hookeado al cargar un nuevo proceso
 ** https://bitbucket.org/RowDaBoat/wyrm */
@@ -63,14 +81,14 @@ uint64_t createNewThreadStack(uint64_t rip, uint64_t stackPage, uint64_t argc, u
 
 int removeThread(threadADT thread)
 {
-	if(thread == NULL)
-		return -1;
-	removeThreadFromProcess(getProcessByPid(thread->pid), thread->tid);  
-	free((void *)thread->stackPage);
-  threadADT waiting = thread->waiting;   
-	free((void *)thread);
+  if (thread == NULL)
+    return -1;
+  removeThreadFromProcess(getProcessByPid(thread->pid), thread->tid);
+  free((void *)thread->stackPage);
+  threadADT waiting = thread->waiting;
+  free((void *)thread);
   unblockThread(waiting);
-	return 0;
+  return 0;
 }
 
 void setThreadRsp(threadADT t, uint64_t rsp)
@@ -102,7 +120,7 @@ void blockThread(threadADT t)
 }
 
 void unblockThread(threadADT t)
-{  
+{
   if (t != NULL && t->status != DELETE)
     t->status = READY;
 }
@@ -130,12 +148,12 @@ void setThreadForeground(threadADT t)
 }
 
 int isThreadForeground(threadADT t)
-{  
+{
   if (t != NULL)
   {
     return t->foreground == 1;
   }
-  
+
   return 0;
 }
 
@@ -158,15 +176,28 @@ void putThreadOnWait(threadADT t1, threadADT t2)
 {
   if (t1 == NULL || t2 == NULL)
     return;
-
-  t1->waiting = t2;
-
   blockThread(t1);
+  t2->waiting = t1;
 }
 
-threadADT getThreadWaiting(threadADT t)
+int setFileOpen(threadADT t, int fd)
 {
-  if(t != NULL)
-    return t->waiting;
-  return NULL;
+  if (fd >= MAX_FDS)
+    return 0;
+  t->openFds |= 1 << fd; // Settea bit en posicion fd en 1
+  return 1;
+}
+
+int fileIsOpen(threadADT t, int fd)
+{
+  return fd < MAX_FDS && CHECK_BIT(t->openFds, fd);
+}
+
+int getThreadStatus(threadADT t)
+{
+  if (t != NULL)
+  {
+    return t->status;
+  }
+  return -1;
 }

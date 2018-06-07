@@ -98,6 +98,24 @@ void checkSizeOfSemaphoreList(int mysize, int size)
 		ok();
 	}
 }
+
+void checkIsPositive(int i)
+{
+	if (i >= 0)
+		ok();
+	else
+		fail();
+}
+
+void checkIsGreaterThanZero(int i)
+{
+	if (i > 0)
+		ok();
+	else
+		fail();
+}
+
+
 void ok()
 {
 	printString("Ok\n", 0, 255, 0);

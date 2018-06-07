@@ -1,4 +1,5 @@
 #include "./genericQueue.h"
+#include "memoryAllocator.h"
 #include <stdlib.h>
 
 typedef struct node
@@ -90,4 +91,12 @@ queueElement dequeue(queueADT queue)
 
   free(auxFirst);
   return element;
+}
+
+void destroyQueue(queueADT q)
+{
+  while (!queueIsEmpty(q))
+    dequeue(q);
+
+  free((void *)q);
 }

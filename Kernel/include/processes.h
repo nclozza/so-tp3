@@ -9,6 +9,8 @@
 
 #define MAX_DATA_PAGES 64
 #define MAX_PROCESS_NAME 64
+#define MAX_FDS 64
+#define CHECK_BIT(var,pos) ((var) & (1<<(pos)));
 #define MAX_THREADS 14
 
 typedef struct
@@ -19,6 +21,7 @@ typedef struct
   void *dataPage[MAX_DATA_PAGES];
   uint64_t pid;
   uint64_t ppid;
+  uint64_t openFds;
   //uint64_t cpid;
   threadADT threads[MAX_THREADS];
   uint64_t threadCount;
@@ -58,5 +61,9 @@ void removeThreadFromProcess(process* p, int tid);
 threadADT getThread(process* p, int tid);
 
 int deleteThisProcess(int pid);
+
+int getAndIncreaseThreadCount(process* p);
+
+void addToProcess(threadADT t, int pid, int tid);
 
 #endif

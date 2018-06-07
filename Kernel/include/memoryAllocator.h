@@ -14,11 +14,13 @@
 /*Amount of 1mb processes given*/
 #define MAX_PROCESSES 128
 
-#define TOTAL_MEMORY (PAGE_SIZE * 1024 * 2) //8MB
+#define TOTAL_MEMORY (PAGE_SIZE * 1024 *128) //128MB
 
 #define NUMBER_OF_PAGES (TOTAL_MEMORY / PAGE_SIZE)
 
 #define HEAPSIZE ((NUMBER_OF_PAGES * 2) - 1)
+
+#define START_FREE_MEMORY 0x600000
 
 enum buddyStates
 {

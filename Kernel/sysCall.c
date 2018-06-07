@@ -9,6 +9,7 @@
 #include "messageQueue.h"
 #include "scheduler.h"
 #include "memoryAllocator.h"
+#include "pipes.h"
 
 #define ERROR 1
 #define SUCCESS 0
@@ -113,12 +114,29 @@ uint64_t sysCallHandler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, 
   case 32:
     whileTrue();
     return SUCCESS;
+  case 33:
+    return pipeOpen((char*) rsi);
+  case 34:
+    return pipeClose((int) rsi);
+  case 35:
+    return pipeWrite((int) rsi, (const void *) rdx, (int) rcx);    
+  case 36:
+    return pipeRead((int) rsi, (void *) rdx, (int) rcx);  
+  case 37:
+    createPipeMutex();
+    return SUCCESS;
+  case 38:
+    closePipeMutex();
+    return SUCCESS;   
   case 50:
     putThreadOnWait(getCurrentThread(), getThread(getProcessByPid((int)rsi), 0));
     yieldThread();
     return SUCCESS;
   case 51:
-    return runThread(createThread(getProcessPid(getCurrentProcess()), rsi,rdx,rcx,(char**)r8, getProcessThreadCount(getProcessPid(getCurrentProcess()))));
+    return runThread(createThread(getProcessPid(getCurrentProcess()), rsi,rdx,rcx,(char**)r8, getAndIncreaseThreadCount(getCurrentProcess())));
+  case 52:
+    removeThreadFromProcess(getCurrentProcess(), (int)rsi);
+    return SUCCESS;
   }
   return ERROR;
 }

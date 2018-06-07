@@ -6,7 +6,14 @@
 
 void *malloc(uint64_t size)
 {
-	return allocMemory(CEIL((double)size / PAGE_SIZE));
+	void *ret = allocMemory(CEIL((double)size / PAGE_SIZE));
+
+	if (ret == NULL)
+	{
+		printString("OUT OF MEMORY MALLOC\n", 255, 0, 0);
+	}
+
+	return ret;
 }
 
 void free(void *page)

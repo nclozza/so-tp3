@@ -8,7 +8,7 @@
 #define BLOCKED 2
 #define DELETE 3
 
-typedef struct thread_t* threadADT;
+typedef struct thread_t *threadADT;
 
 typedef struct
 {
@@ -40,7 +40,7 @@ typedef struct
   uint64_t base;
 } stackFrame;
 
-threadADT createThread(int pid,int foreground, uint64_t rsp, int argc, char *argv[], int tid);
+threadADT createThread(int pid, int foreground, uint64_t rsp, int argc, char *argv[], int tid);
 
 uint64_t createNewThreadStack(uint64_t rip, uint64_t stackPage, uint64_t argc, uint64_t argv);
 
@@ -70,6 +70,10 @@ int isThreadDeleted(threadADT t);
 
 void putThreadOnWait(threadADT t1, threadADT t2);
 
-threadADT getThreadWaiting(threadADT t);
+int getThreadStatus(threadADT t);
+
+int setFileOpen(threadADT t, int fd);
+
+int fileIsOpen(threadADT t, int fd);
 
 #endif

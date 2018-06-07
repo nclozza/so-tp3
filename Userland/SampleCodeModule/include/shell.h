@@ -19,7 +19,8 @@
 				plot coef_a coef_b coef_c   - Plots a Quadratic function for the given values\n\
 				help (optional)command      - Displays help instructions for command\n\
 				exit                        - Exits the shell\n\
-				prodcons                    - Offers a solution for the producer-consumer problem\n\
+				prodcons                    - Offers a solution for the producer-consumer problem using semaphores\n\
+				prodconsPipes               - Offers a solution for the producer-consumer problem using pipes\n\
 				opcode                      - Tests opcode exception\n\
 				ps                          - Prints a list of all processes\n\
 				print arguments argument    - Create process 'print' and print the arguments\n\
@@ -45,6 +46,7 @@
 #define EXIT_INS "Quits the shell.\n"
 #define OPCODE_INS "Creates opcode exception for testing purposes.\n"
 #define PRODCONS_INS "Receives no arguments. Producers put items into a buffer and consumers retrieve them.\n"
+#define PRODCONS_PIPES_INS "Receives no arguments. Producers put items into a buffer and consumers retrieve them.\n"				
 #define PS_INS "Receives no arguments. Lists all processes and their properties.\n"
 #define WHILETRUE "Receives no arguments. Create an emprty process with a while 1. Run in background.\n"
 #define KILL "Receives 1 argument, correspond to the pid of the process to kill\n"

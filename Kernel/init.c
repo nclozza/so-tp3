@@ -8,9 +8,9 @@
 static void *const sampleCodeModuleAddress = (void *)0x400000;
 
 void init()
-{		
-	runTests();
-	runThread(getThread(createProcess((uint64_t)sampleCodeModuleAddress,1, 0,0, "shell"),0));		
+{
+	//runTests();
+	runThread(getThread(createProcess((uint64_t)sampleCodeModuleAddress, 1, 0, 0, "shell"), 0));
 	while (1)
 	{
 		_hlt();

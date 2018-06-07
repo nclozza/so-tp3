@@ -8,6 +8,7 @@
 #include "prodcons.h"
 #include "calculate.h"
 #include "sysCallLib.h"
+#include "prodconspipes.h"
 
 static int R = DR;
 static int G = DG;
@@ -21,15 +22,15 @@ void printName(int argc, char *argv[])
 {
 	if (argc > 1)
 	{
-		sysSemWait(s);
+		// sysSemWait(s);
 		for (int i = 0; i < 100; i++)
 		{
-			// sysMutexDown(m);
+			sysMutexDown(m);
 			sysPrintString("I'm process: ", 0, 155, 255);
 			sysPrintString(argv[1], 0, 155, 255);
-			// sysMutexUp(m);
+			sysMutexUp(m);
 		}
-		sysSemPost(s);
+		// sysSemPost(s);
 	}
 	else
 	{
@@ -97,6 +98,10 @@ void help(int argc, char *argv[])
 		else if (strcmp(input1, "prodcons\n") == 0)
 		{
 			sysPrintString(PRODCONS_INS, B, G, R);
+		}
+		else if (strcmp(input1, "prodconsPipes\n") == 0)
+		{
+			sysPrintString(PRODCONS_PIPES_INS, B, G, R);
 		}
 		else if (strcmp(input1, "ps\n") == 0)
 		{
@@ -193,6 +198,18 @@ void prodcons(int argc, char *argv[])
 	}
 
 	runProdCons();
+	sysEndThread();
+}
+
+void prodconsPipes(int argc, char *argv[])
+{
+	if (argc != 1)
+	{
+		sysPrintString("No extra parameters for prodconsPipes\n", CB, CG, CR);
+		sysEndThread();
+	}
+
+	runProdConsPipes();
 	sysEndThread();
 }
 
