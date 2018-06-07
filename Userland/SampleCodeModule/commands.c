@@ -13,6 +13,8 @@
 static int R = DR;
 static int G = DG;
 static int B = DB;
+static int id = 0;
+static int length = 0;
 
 int timeZone = -3;
 uint64_t m;
@@ -26,7 +28,7 @@ void printName(int argc, char *argv[])
 		for (int i = 0; i < 100; i++)
 		{
 			sysMutexDown(m);
-			sysPrintString("I'm process: ", 0, 155, 255);
+			sysPrintString("I'm printing: ", 0, 155, 255);
 			sysPrintString(argv[1], 0, 155, 255);
 			sysMutexUp(m);
 		}
@@ -67,29 +69,13 @@ void help(int argc, char *argv[])
 		{
 			sysPrintString(DISPLAY_TIME_INS, B, G, R);
 		}
-		else if (strcmp(input1, "setTimeZone\n") == 0)
-		{
-			sysPrintString(SET_TIME_ZONE_INS, B, G, R);
-		}
-		else if (strcmp(input1, "setFontColor\n") == 0)
-		{
-			sysPrintString(SET_FONT_COLOR_INS, B, G, R);
-		}
 		else if (strcmp(input1, "clear\n") == 0)
 		{
 			sysPrintString(CLEAR_INS, B, G, R);
 		}
-		else if (strcmp(input1, "calculate\n") == 0)
-		{
-			sysPrintString(CALCULATE_INS, B, G, R);
-		}
 		else if (strcmp(input1, "exit\n") == 0)
 		{
 			sysPrintString(EXIT_INS, B, G, R);
-		}
-		else if (strcmp(input1, "plot\n") == 0)
-		{
-			sysPrintString(PLOT_INS, B, G, R);
 		}
 		else if (strcmp(input1, "opcode\n") == 0)
 		{
@@ -142,15 +128,29 @@ void echo(int argc, char *argv[])
 
 void echoPIPE(int argc, char *argv[])
 {
-	sysPrintString("PIPE\n",0,155,255);
-	for (int i = 1; i < argc; i++)
-	{
-		sysPrintString(argv[i], B, G, R);
-		sysPrintString(" ", B, G, R);
-	}
+	sysCreatePipeMutex();
+	id = sysPipeOpen("echoPIPE");
+	length = strleng(argv[1]);
+	sysPipeWrite(id, argv[1], length);
 
-	sysPrintString("\n", B, G, R);
+	sysEndThread();
+}
 
+void printPIPE(int argc, char *argv[])
+{
+	sysPrintString("printPIPE\n", 0, 155, 255);
+	char **buffer = (char **)sysMalloc(1);
+	buffer[1] = (char *)sysMalloc(1);
+	sysPipeRead(id, buffer[1], length);
+	buffer[1][length] = '\n';
+
+	printName(2, buffer);
+
+	sysFree((uint64_t)buffer[1]);
+	sysFree((uint64_t)buffer);
+
+	sysPipeClose(id);
+	sysClosePipeMutex();
 	sysEndThread();
 }
 
@@ -164,31 +164,6 @@ void clear(int argc, char *argv[])
 	}
 
 	sysClear();
-	sysEndThread();
-}
-
-void calculate(int argc, char *argv[])
-{
-	/*calculate operation n1 n2*/
-	if (argc != 4)
-		sysEndThread();
-	char *input01 = argv[1];
-	char *input02 = argv[2];
-	char *input03 = argv[3];
-
-	int ver = calculateVerifications(argc, input02, input03);
-
-	if (ver)
-	{
-		int input2 = toInt(input02);
-		int input3 = toInt(input03);
-
-		int ans = runCalculate(input01, input2, input3);
-
-		sysPrintString("Calculated: ", 255, 255, 0);
-		sysPrintInt(ans, 255, 255, 0);
-		sysPrintString("\n", 255, 255, 0);
-	}
 	sysEndThread();
 }
 
@@ -238,35 +213,6 @@ void ps(int argc, char *argv[])
 	sysEndThread();
 }
 
-void plot(int argc, char *argv[])
-{
-
-	if (argc != (GRAPH_PARAMETERS + 1))
-	{
-		sysPrintString("Wrong amount of parameters for plot command\n\
-		Use command help for guidelines\n",
-									 CB, CG, CR);
-
-		sysEndThread();
-	}
-
-	for (int i = 1; i <= GRAPH_PARAMETERS; i++)
-	{
-		if (!isNum(argv[i]))
-		{
-			sysPrintString("Wrong parameters passed to plot command\n\
-			Use command help for guidelines\n",
-										 CB, CG, CR);
-
-			sysEndThread();
-		}
-	}
-
-	graphMain(toFloat(argv[1]), toFloat(argv[2]), toFloat(argv[3]));
-
-	sysEndThread();
-}
-
 void displayTime(int argc, char *argv[])
 {
 	if (argc != 1)
@@ -302,61 +248,9 @@ void displayTime(int argc, char *argv[])
 	sysEndThread();
 }
 
-void setTimeZone(int argc, char *argv[])
-{
-	int input1 = toInt(argv[1]);
-	if (argc != 2)
-	{
-		sysPrintString("Wrong parameters: setTimeZone timezone\n", CB, CG, CR);
-		sysEndThread();
-	}
-	else
-	{
-		if (input1 > 12 || input1 < -11)
-		{
-			sysPrintString("Timezone values must be between -11 and +12\n", CB, CG, CR);
-			sysEndThread();
-		}
-		timeZone = input1;
-		sysEndThread();
-	}
-}
-
 void exit(int argc, char *argv[])
 {
 	sysExitShell();
-}
-
-void setFontColor(int argc, char *argv[])
-{
-	if (argc != 2)
-	{
-		sysPrintString("Wrong parameters for setFontColor\n", CB, CG, CR);
-		sysEndThread();
-	}
-	if (strcmp(argv[2], "red") == 0)
-	{
-		sysEndThread();
-	}
-	else if (strcmp(argv[2], "green") == 0)
-	{
-		sysEndThread();
-	}
-	else if (strcmp(argv[2], "blue") == 0)
-	{
-		sysEndThread();
-	}
-	else if (strcmp(argv[2], "default") == 0)
-	{
-		sysEndThread();
-	}
-	else
-	{
-		sysPrintString("Wrong parameters for setFontColor\n", CB, CG, CR);
-		sysEndThread();
-	}
-
-	sysPrintString("Set font color\n", B, G, R);
 }
 
 void whileTrue()

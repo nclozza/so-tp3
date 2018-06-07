@@ -21,13 +21,7 @@ static command commands[] = {
 		{"echo\0", echo},
 		{"echo\n", echo},
 		{"displayTime\n", displayTime},
-		{"setTimeZone\n", setTimeZone},
-		{"setFontColor\n", setFontColor},
 		{"clear\n", clear},
-		{"calculate\0", calculate},
-		{"calculate\n", calculate},
-		{"plot\0", plot},
-		{"plot\n", plot},
 		{"exit\n", exit},
 		{"opcode\0", opcode},
 		{"opcode\n", opcode},
@@ -41,6 +35,7 @@ static command commands[] = {
 		{"print\0", printName},
 		{"whileTrue\n", whileTrue},
 		{"echoPIPE\0", echoPIPE},
+		{"print\nPIPE\n", printPIPE},
 		{"kill\0", kill}};
 
 //static int timeZone = -3;
@@ -104,59 +99,7 @@ void startShell()
 		}
 	}
 }
-int checkPipe(int *argc, char ***argv)
-{
-	int count;
-	for (count = 0; count < *argc; count++)
-	{
-		if (strcmp((*argv)[count], "/") == 0)
-		{
-			int i, valid = 0;
-			for (i = 0; i < CMD_SIZE && valid == 0; i++)
-			{
-				int size = strleng((*argv)[0]);
-				char *command = (char *)sysMalloc(size + 4);
-				strcpy(command, (*argv)[0]);
-				strcat(command, "PIPE\0");
-				if (strcmp(command, commands[i].name) == 0)
-				{
-					execProcess(commands[i].function, count, *argv, commands[i].name, 1);
-					valid = 1;
-					sysFree((uint64_t)command);
-				}
-			}
 
-			if (valid == 0)
-			{
-				sysPrintString((*argv)[0], CB, CG, CR);
-				sysPrintString("Wrong input\n", CB, CG, CR);
-				return 1;
-			}
-			valid = 0;
-			for (i = 0; i < CMD_SIZE && valid == 0; i++)
-			{
-				int size = strleng((*argv)[count + 1]);
-				char *command2 = (char *)sysMalloc(size + 4);
-				strcpy(command2, (*argv)[count + 1]);
-				strcat(command2, "PIPE\0");
-				if (strcmp(command2, commands[i].name) == 0)
-				{
-					execProcess(commands[i].function, *argc - count - 1, (argv[0] + count + 1), commands[i].name, 1);
-					valid = 1;
-				}
-				sysFree((uint64_t)command2);
-			}
-
-			if (valid == 0)
-			{
-				sysPrintString((*argv)[count + 1], CB, CG, CR);
-				sysPrintString("Wrong input\n", CB, CG, CR);
-			}
-			return 1;
-		}
-	}
-	return 0;
-}
 int callFunction(char *buffer)
 {
 	if (buffer == NULL)
@@ -228,4 +171,60 @@ void parseParams(char *command, int *argc, char ***argv)
 	} while (command[i++] != 0);
 
 	(*argc) = count;
+}
+
+int checkPipe(int *argc, char ***argv)
+{
+	int count;
+	for (count = 0; count < *argc; count++)
+	{
+		if (strcmp((*argv)[count], "/") == 0)
+		{
+			int i, valid = 0;
+			for (i = 0; i < CMD_SIZE && valid == 0; i++)
+			{
+				int size = strleng((*argv)[0]);
+				char *command = (char *)sysMalloc(size + 4);
+				strcpy(command, (*argv)[0]);
+				strcat(command, "PIPE\0");
+				if (strcmp(command, commands[i].name) == 0)
+				{
+					execProcess(commands[i].function, count, *argv, commands[i].name, 1);
+					valid = 1;
+				}
+				sysFree((uint64_t)command);
+			}
+
+			if (valid == 0)
+			{
+				sysPrintString((*argv)[0], CB, CG, CR);
+				sysPrintString("Wrong input\n", CB, CG, CR);
+				return 1;
+			}
+
+			valid = 0;
+			for (i = 0; i < CMD_SIZE && valid == 0; i++)
+			{
+				int size = strleng((*argv)[count + 1]);
+				char *command2 = (char *)sysMalloc(size + 4);
+				strcpy(command2, (*argv)[count + 1]);
+				strcat(command2, "PIPE\n");
+
+				if (strcmp(command2, commands[i].name) == 0)
+				{
+					execProcess(commands[i].function, *argc - count - 1, (argv[0] + count + 1), commands[i].name, 1);
+					valid = 1;
+				}
+				sysFree((uint64_t)command2);
+			}
+
+			if (valid == 0)
+			{
+				sysPrintString((*argv)[count + 1], CB, CG, CR);
+				sysPrintString("Wrong input\n", CB, CG, CR);
+			}
+			return 1;
+		}
+	}
+	return 0;
 }

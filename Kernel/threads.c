@@ -191,7 +191,7 @@ int setFileOpen(threadADT t, int fd)
 
 int fileIsOpen(threadADT t, int fd)
 {
-  return fd < MAX_FDS && CHECK_BIT(t->openFds, fd);
+  return fd < MAX_FDS && t->openFds;
 }
 
 int getThreadStatus(threadADT t)

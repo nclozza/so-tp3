@@ -143,8 +143,7 @@ static circularBuffer createCircularBuffer()
 
 static int isOpen(int id)
 {
-  return id < MAX_PIPES && openPipes[id].state == OPEN &&
-         fileIsOpen(getCurrentThread(), id);
+  return id < MAX_PIPES && openPipes[id].state == OPEN;
 }
 
 int pipeWrite(int id, const void *buf, int bytes)
@@ -220,8 +219,8 @@ int pipeRead(int id, void *buf, int bytes)
 
     mutexLock(f->pipeMutex);
 
-    if (queueIsEmpty(f->readQueue)) // primer reader
-      canRead = tryRead(r);
+    if (queueIsEmpty(f->readQueue))
+      canRead = tryRead(r); // primer reader
 
     if (!canRead)
     {

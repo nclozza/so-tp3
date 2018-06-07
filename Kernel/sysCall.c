@@ -26,10 +26,11 @@ void freeMemory(uint64_t page)
 {
   free((void *)page);
 }
+
 void setForeground(int pid)
 {
-  process* p = getCurrentProcess();
-  setThreadForeground(getThread(p,0));
+  process *p = getCurrentProcess();
+  setThreadForeground(getThread(p, 0));
 }
 uint64_t sysCallHandler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9)
 {
@@ -89,7 +90,7 @@ uint64_t sysCallHandler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, 
   case 22:
     return closeMessage((char *)rsi, (int)rdx);
   case 23:
-    return runThread(getThread(createProcess(rsi, rdx, rcx, r8,(char *)r9), 0));
+    return runThread(getThread(createProcess(rsi, rdx, rcx, r8, (char *)r9), 0));
   case 24:
     setForeground((int)rsi);
     return SUCCESS;
@@ -110,30 +111,30 @@ uint64_t sysCallHandler(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, 
     printBlockedThreadsList();
     return SUCCESS;
   case 31:
-    return deleteThisProcess((int) rsi);
+    return deleteThisProcess((int)rsi);
   case 32:
     whileTrue();
     return SUCCESS;
   case 33:
-    return pipeOpen((char*) rsi);
+    return pipeOpen((char *)rsi);
   case 34:
-    return pipeClose((int) rsi);
+    return pipeClose((int)rsi);
   case 35:
-    return pipeWrite((int) rsi, (const void *) rdx, (int) rcx);    
+    return pipeWrite((int)rsi, (const void *)rdx, (int)rcx);
   case 36:
-    return pipeRead((int) rsi, (void *) rdx, (int) rcx);  
+    return pipeRead((int)rsi, (void *)rdx, (int)rcx);
   case 37:
     createPipeMutex();
     return SUCCESS;
   case 38:
     closePipeMutex();
-    return SUCCESS;   
+    return SUCCESS;
   case 50:
     putThreadOnWait(getCurrentThread(), getThread(getProcessByPid((int)rsi), 0));
     yieldThread();
     return SUCCESS;
   case 51:
-    return runThread(createThread(getProcessPid(getCurrentProcess()), rsi,rdx,rcx,(char**)r8, getAndIncreaseThreadCount(getCurrentProcess())));
+    return runThread(createThread(getProcessPid(getCurrentProcess()), rsi, rdx, rcx, (char **)r8, getAndIncreaseThreadCount(getCurrentProcess())));
   case 52:
     removeThreadFromProcess(getCurrentProcess(), (int)rsi);
     return SUCCESS;
