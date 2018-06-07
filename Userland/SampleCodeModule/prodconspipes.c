@@ -189,7 +189,7 @@ void runProdConsPipes()
       break;
 
       case QUIT: 
-      while (tidPipes >= 0) {
+      while (tidPipes > 0) {
         sysRemoveThreadFromProcess(tidPipes);
         tidPipes--;
       }

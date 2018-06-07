@@ -197,7 +197,7 @@ void runProdCons()
       break;
 
       case QUIT:      
-      while (tid >= 0) {
+      while (tid > 0) {
         sysRemoveThreadFromProcess(tid);
         tid--;
       }
