@@ -186,3 +186,13 @@ int rand()
   next = next * 1103515245 + 12345;
   return (unsigned int)(next / 65536) % 32768;
 }
+
+
+void strcat(char *d, const char *s)
+{
+    int i,j;
+    for (i = 0; d[i] != '\0'; i++);
+    for (j = 0; s[j] != '\0'; j++)
+        d[i+j] = s[j];
+    d[i+j] = '\0';
+}

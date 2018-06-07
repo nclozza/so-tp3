@@ -22,7 +22,7 @@ void checkSizeOfSemaphoreList(int mysize, int size);
 void ok();
 void fail();
 int rand();
-
+void strcat(char *d, const char *s);
 int closeMessage(uint64_t arg1, uint64_t id);
 
 #endif
